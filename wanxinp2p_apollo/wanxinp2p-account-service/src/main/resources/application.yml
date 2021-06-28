@@ -1,0 +1,27 @@
+# -Denv=dev -Dapollo.cluster=DEFAULT -Dserver.port=53050
+app:
+  id: account-service
+apollo:
+  bootstrap:
+    enabled: true
+    namespaces: application,micro_service.spring-boot-druid,micro_service.spring-boot-http,micro_service.spring-eureka,micro_service.spring-hystrix,micro_service.spring-ribbon,micro_service.spring-boot-redis,micro_service.mybatis-plus,micro_service.spring-rocketmq
+
+spring:
+  application:
+    name: account-service
+
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone: http://localhost:53000/eureka/
+#  instance:
+#    preferIpAddress: true
+#    instance-id: ${spring.application.name}:${spring.cloud.client.ip-address}:${server.port}
+
+logging:
+  config: classpath:log4j2-dev.xml
+
+
+
+
+
