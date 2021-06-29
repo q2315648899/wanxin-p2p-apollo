@@ -2,6 +2,10 @@ package cn.itcast.wanxinp2p.consumer.service;
 
 import cn.itcast.wanxinp2p.api.consumer.model.ConsumerDTO;
 import cn.itcast.wanxinp2p.api.consumer.model.ConsumerRegisterDTO;
+import cn.itcast.wanxinp2p.common.domain.BusinessException;
+import cn.itcast.wanxinp2p.common.domain.CodePrefixCode;
+import cn.itcast.wanxinp2p.common.util.CodeNoUtil;
+import cn.itcast.wanxinp2p.consumer.common.ConsumerErrorCode;
 import cn.itcast.wanxinp2p.consumer.entity.Consumer;
 import cn.itcast.wanxinp2p.consumer.mapper.ConsumerMapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -14,23 +18,32 @@ public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> i
 
     @Override
     public Integer checkMobile(String mobile) {
-        return getByMobile(mobile)!=null?1:0;
+        return getByMobile(mobile) != null ? 1 : 0;
     }
 
-    private ConsumerDTO getByMobile(String mobile){
-        Consumer consumer=getOne(new QueryWrapper<Consumer>().lambda().eq(Consumer::getMobile,mobile));
+    private ConsumerDTO getByMobile(String mobile) {
+        Consumer consumer = getOne(new QueryWrapper<Consumer>().lambda().eq(Consumer::getMobile, mobile));
         return convertConsumerEntityToDTO(consumer);
     }
 
     @Override
     public void register(ConsumerRegisterDTO consumerRegisterDTO) {
-
+        if (checkMobile(consumerRegisterDTO.getMobile()) == 1) {
+            throw new BusinessException(ConsumerErrorCode.E_140107);
+        }
+        Consumer consumer = new Consumer();
+        BeanUtils.copyProperties(consumerRegisterDTO, consumer);
+        consumer.setUsername(CodeNoUtil.getNo(CodePrefixCode.CODE_NO_PREFIX));
+        consumer.setUserNo(CodeNoUtil.getNo(CodePrefixCode.CODE_REQUEST_PREFIX));
+        consumer.setIsBindCard(0);
+        save(consumer);
     }
 
     /**
-        * entity转为dto
-        * @param entity
-        * @return
+     * entity转为dto
+     *
+     * @param entity
+     * @return
      **/
     private ConsumerDTO convertConsumerEntityToDTO(Consumer entity) {
         if (entity == null) {
