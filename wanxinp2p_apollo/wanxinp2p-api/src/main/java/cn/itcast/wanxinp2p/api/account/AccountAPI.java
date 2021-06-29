@@ -2,6 +2,7 @@ package cn.itcast.wanxinp2p.api.account;
 
 
 import cn.itcast.wanxinp2p.api.account.model.AccountDTO;
+import cn.itcast.wanxinp2p.api.account.model.AccountLoginDTO;
 import cn.itcast.wanxinp2p.api.account.model.AccountRegisterDTO;
 import cn.itcast.wanxinp2p.common.domain.RestResponse;
 
@@ -29,4 +30,11 @@ public interface AccountAPI {
      * @return
      */
     RestResponse<AccountDTO> register(AccountRegisterDTO accountRegisterDTO);
+
+    /**
+     * 用户登录
+     * @param accountLoginDTO 封装用户登录信息
+     * @return
+     */
+    RestResponse<AccountDTO>  login(AccountLoginDTO accountLoginDTO);
 }
