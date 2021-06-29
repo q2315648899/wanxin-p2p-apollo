@@ -67,6 +67,6 @@ public class AccountController implements AccountAPI {
     @PostMapping(value = "/l/accounts/session")
     @Override
     public RestResponse<AccountDTO> login(@RequestBody AccountLoginDTO accountLoginDTO) {
-        return null;
+        return RestResponse.success(accountService.login(accountLoginDTO));
     }
 }

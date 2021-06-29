@@ -2,6 +2,7 @@ package cn.itcast.wanxinp2p.account.service;
 
 import cn.itcast.wanxinp2p.account.entity.Account;
 import cn.itcast.wanxinp2p.api.account.model.AccountDTO;
+import cn.itcast.wanxinp2p.api.account.model.AccountLoginDTO;
 import cn.itcast.wanxinp2p.api.account.model.AccountRegisterDTO;
 import cn.itcast.wanxinp2p.common.domain.RestResponse;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -34,4 +35,11 @@ public interface AccountService extends IService<Account> {
      * @return
      */
     AccountDTO register(AccountRegisterDTO accountRegisterDTO) ;
+
+    /**
+     登录功能
+     @param accountLoginDTO 封装登录请求数据
+     @return 用户及权限信息
+     */
+    AccountDTO login(AccountLoginDTO accountLoginDTO);
 }

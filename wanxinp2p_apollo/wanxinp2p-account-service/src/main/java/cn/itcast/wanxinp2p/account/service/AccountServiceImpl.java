@@ -1,9 +1,12 @@
 package cn.itcast.wanxinp2p.account.service;
 
+import cn.itcast.wanxinp2p.account.common.AccountErrorCode;
 import cn.itcast.wanxinp2p.account.entity.Account;
 import cn.itcast.wanxinp2p.account.mapper.AccountMapper;
 import cn.itcast.wanxinp2p.api.account.model.AccountDTO;
+import cn.itcast.wanxinp2p.api.account.model.AccountLoginDTO;
 import cn.itcast.wanxinp2p.api.account.model.AccountRegisterDTO;
+import cn.itcast.wanxinp2p.common.domain.BusinessException;
 import cn.itcast.wanxinp2p.common.domain.RestResponse;
 import cn.itcast.wanxinp2p.common.util.PasswordUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -59,6 +62,52 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         account.setDomain("c");
         save(account);
         return convertAccountEntityToDTO(account);
+    }
+
+    @Override
+    public AccountDTO login(AccountLoginDTO accountLoginDTO) {
+        //1.根据用户名和密码进行一次查询
+        //2.先根据用户名进行查询，然后再比对密码（因为密码经过加密存到数据库的，所以使用此方法）
+        Account account=null;
+        if(accountLoginDTO.getDomain().equalsIgnoreCase("c")){
+            //如果是c端用户，用户名就是手机号
+            account=getAccountByMobile(accountLoginDTO.getMobile());
+        }else{
+            //如果是b端用户，用户名就是账号
+            account=getAccountByUsername(accountLoginDTO.getUsername());
+        }
+        if(account==null){
+            throw  new BusinessException(AccountErrorCode.E_130104);// 用户不存在
+        }
+
+        AccountDTO accountDTO=convertAccountEntityToDTO(account);
+        if(smsEnable){ //如果为true,表示采用短信验证码登录，无需比较密码
+            return accountDTO;
+        }
+
+        if(PasswordUtil.verify(accountLoginDTO.getPassword(),account.getPassword())){
+            return accountDTO;
+        }
+
+        throw new BusinessException(AccountErrorCode.E_130105);
+    }
+
+    /**
+     根据手机获取账户信息
+     @param mobile 手机号
+     @return 账户实体
+     */
+    private Account getAccountByMobile(String mobile){
+        return getOne(new QueryWrapper<Account>().lambda().eq(Account::getMobile,mobile));
+    }
+
+    /**
+     根据用户名获取账户信息
+     @param username 用户名
+     @return 账户实体
+     */
+    private Account getAccountByUsername(String username){
+        return getOne(new QueryWrapper<Account>().lambda().eq(Account::getUsername,username));
     }
 
     /**
