@@ -38,4 +38,16 @@ public class AccountController implements AccountAPI {
         return accountService.getSMSCode(mobile);
     }
 
+    @ApiOperation("校验手机号和验证码")
+    @ApiImplicitParams({@ApiImplicitParam(name = "mobile", value = "手机号", required = true,
+            dataType = "String"),
+            @ApiImplicitParam(name = "key", value = "校验标识", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "code", value = "验证码", required = true, dataType = "String")})
+    @GetMapping("/mobiles/{mobile}/key/{key}/code/{code}")
+    @Override
+    public RestResponse<Integer> checkMobile(@PathVariable String mobile,
+                                             @PathVariable String key,
+                                             @PathVariable String code) {
+        return null;
+    }
 }
