@@ -57,6 +57,6 @@ public class AccountController implements AccountAPI {
             dataType = "AccountRegisterDTO", paramType = "body")
     @PostMapping(value = "/l/accounts")
     public RestResponse<AccountDTO> register(@RequestBody AccountRegisterDTO accountRegisterDTO) {
-        return  null;
+        return  RestResponse.success(accountService.register(accountRegisterDTO));
     }
 }
