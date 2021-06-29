@@ -48,6 +48,6 @@ public class AccountController implements AccountAPI {
     public RestResponse<Integer> checkMobile(@PathVariable String mobile,
                                              @PathVariable String key,
                                              @PathVariable String code) {
-        return null;
+        return RestResponse.success(accountService.checkMobile(mobile, key, code));
     }
 }
