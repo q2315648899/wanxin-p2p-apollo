@@ -94,6 +94,7 @@
 			<artifactId>apollo-client</artifactId>
 		</dependency>
 
+		<!--mybatis-plus相关依赖-->
 		<dependency>
 			<groupId>com.baomidou</groupId>
 			<artifactId>mybatis-plus-boot-starter</artifactId>
