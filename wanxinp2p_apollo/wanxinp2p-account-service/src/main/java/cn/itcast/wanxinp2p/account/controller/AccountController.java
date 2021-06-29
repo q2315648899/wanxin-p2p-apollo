@@ -2,6 +2,8 @@ package cn.itcast.wanxinp2p.account.controller;
 
 import cn.itcast.wanxinp2p.account.service.AccountService;
 import cn.itcast.wanxinp2p.api.account.AccountAPI;
+import cn.itcast.wanxinp2p.api.account.model.AccountDTO;
+import cn.itcast.wanxinp2p.api.account.model.AccountRegisterDTO;
 import cn.itcast.wanxinp2p.common.domain.RestResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -9,9 +11,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @Author: wong
@@ -49,5 +49,14 @@ public class AccountController implements AccountAPI {
                                              @PathVariable String key,
                                              @PathVariable String code) {
         return RestResponse.success(accountService.checkMobile(mobile, key, code));
+    }
+
+    @Override
+    @ApiOperation("用户注册")
+    @ApiImplicitParam(name = "accountRegisterDTO", value = "账户注册信息", required = true,
+            dataType = "AccountRegisterDTO", paramType = "body")
+    @PostMapping(value = "/l/accounts")
+    public RestResponse<AccountDTO> register(@RequestBody AccountRegisterDTO accountRegisterDTO) {
+        return  null;
     }
 }
