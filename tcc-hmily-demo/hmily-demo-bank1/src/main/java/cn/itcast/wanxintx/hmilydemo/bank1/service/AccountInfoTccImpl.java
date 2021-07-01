@@ -15,6 +15,8 @@ public class AccountInfoTccImpl implements AccountInfoTcc {
     @Autowired
     private Bank2Client bank2Client;
 
+    // @Hmily标注的就是try方法，confirm和cancel方法在@Hmily中指定
+    // 注意：Try、Confirm、cancel的方法参数必须保持一致。
     @Override
     @Hmily(confirmMethod = "commit", cancelMethod = "rollback")
     public void prepare( String accountNo, double amount) {
