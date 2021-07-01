@@ -14,12 +14,16 @@ import cn.itcast.wanxinp2p.consumer.common.ConsumerErrorCode;
 import cn.itcast.wanxinp2p.consumer.entity.Consumer;
 import cn.itcast.wanxinp2p.consumer.mapper.ConsumerMapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
+import org.dromara.hmily.annotation.Hmily;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> implements ConsumerService {
 
     @Autowired
@@ -36,6 +40,7 @@ public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> i
     }
 
     @Override
+    @Hmily(confirmMethod = "confirmRegister", cancelMethod = "cancelRegister")
     public void register(ConsumerRegisterDTO consumerRegisterDTO) {
         if (checkMobile(consumerRegisterDTO.getMobile()) == 1) {
             throw new BusinessException(ConsumerErrorCode.E_140107);
@@ -55,6 +60,16 @@ public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> i
         if(restResponse.getCode()!= CommonErrorCode.SUCCESS.getCode()){
             throw new BusinessException(ConsumerErrorCode.E_140106);
         }
+    }
+
+    public void confirmRegister(ConsumerRegisterDTO consumerRegisterDTO) {
+        log.info("execute confirmRegister");
+    }
+
+    public void cancelRegister(ConsumerRegisterDTO consumerRegisterDTO) {
+        log.info("execute cancelRegister");
+        remove(Wrappers.<Consumer>lambdaQuery().eq(Consumer::getMobile,
+                consumerRegisterDTO.getMobile()));
     }
 
     /**
