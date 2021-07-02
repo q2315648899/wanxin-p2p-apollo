@@ -6,6 +6,7 @@ import cn.itcast.wanxinp2p.api.consumer.model.ConsumerRequest;
 import cn.itcast.wanxinp2p.api.depository.model.GatewayRequest;
 import cn.itcast.wanxinp2p.common.domain.RestResponse;
 import cn.itcast.wanxinp2p.common.util.EncryptUtil;
+import cn.itcast.wanxinp2p.consumer.common.SecurityUtil;
 import cn.itcast.wanxinp2p.consumer.service.ConsumerService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -60,7 +61,8 @@ public class ConsumerController implements ConsumerAPI {
             dataType = "ConsumerRequest", paramType = "body")
     @PostMapping("/my/consumers")
     public RestResponse<GatewayRequest> createConsumer(@RequestBody ConsumerRequest consumerRequest) {
-        return null;
+        consumerRequest.setMobile(SecurityUtil.getUser().getMobile());
+        return consumerService.createConsumer(consumerRequest);
     }
 
 }
