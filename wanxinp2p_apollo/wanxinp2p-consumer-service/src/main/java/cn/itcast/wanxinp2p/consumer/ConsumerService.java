@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
-@SpringBootApplication(scanBasePackages = {"org.dromara.hmily", "cn.itcast.wanxinp2p.consumer"})
+@SpringBootApplication(scanBasePackages = {"org.dromara.hmily", "cn.itcast.wanxinp2p.consumer"})//等同于@SpringBootApplication加上@ComponentScan({"cn.itcast.wanxintx.hmilydemo.bank1","org.dromara.hmily"})
 @EnableDiscoveryClient
 @MapperScan("cn.itcast.wanxinp2p.consumer.mapper") //设置mapper接口的扫描包
 @EnableFeignClients(basePackages = {"cn.itcast.wanxinp2p.consumer.agent"})
