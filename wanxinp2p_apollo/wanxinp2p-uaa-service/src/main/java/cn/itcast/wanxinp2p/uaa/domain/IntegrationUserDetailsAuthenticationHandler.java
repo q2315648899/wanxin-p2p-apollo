@@ -41,6 +41,7 @@ public class IntegrationUserDetailsAuthenticationHandler {
 		//2.远程调用统一账户服务，进行账户密码校验
 		AccountLoginDTO accountLoginDTO=new AccountLoginDTO();
 		accountLoginDTO.setDomain(domain);
+		// c端用户把手机号存到username，b端用户把账号存到username
 		accountLoginDTO.setUsername(username);
 		accountLoginDTO.setMobile(username);
 		accountLoginDTO.setPassword(presentedPassword);
