@@ -88,7 +88,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     @Override
     public AccountDTO login(AccountLoginDTO accountLoginDTO) {
         //1.根据用户名和密码进行一次查询
-        //2.先根据用户名进行查询，然后再比对密码（因为密码经过加密存到数据库的，所以使用此方法）
+        //2.先根据用户名进行查询，然后再比对密码（因为密码y经过加密存到数据库的，所以使用此方法）
         Account account = null;
         if (accountLoginDTO.getDomain().equalsIgnoreCase("c")) {
             //如果是c端用户，用户名就是手机号
