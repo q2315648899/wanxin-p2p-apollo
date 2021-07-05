@@ -2,6 +2,7 @@ package cn.itcast.wanxinp2p.transaction.service;
 
 import cn.itcast.wanxinp2p.api.consumer.model.ConsumerDTO;
 import cn.itcast.wanxinp2p.api.transaction.model.ProjectDTO;
+import cn.itcast.wanxinp2p.api.transaction.model.ProjectQueryDTO;
 import cn.itcast.wanxinp2p.common.domain.*;
 import cn.itcast.wanxinp2p.common.util.CodeNoUtil;
 import cn.itcast.wanxinp2p.transaction.agent.ConsumerApiAgent;
@@ -71,6 +72,73 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         projectDTO.setId(project.getId());
         projectDTO.setName(project.getName());
         return projectDTO;
+    }
+
+    @Override
+    public PageVO<ProjectDTO> queryProjectsByQueryDTO(ProjectQueryDTO projectQueryDTO, String order, Integer pageNo, Integer pageSize, String sortBy) {
+
+        //带条件
+        QueryWrapper<Project> queryWrapper = new QueryWrapper<>();
+        // 标的类型
+        if (StringUtils.isNotBlank(projectQueryDTO.getType())) {
+            queryWrapper.lambda().eq(Project::getType, projectQueryDTO.getType());
+        } // 起止年化利率(投资人) -- 区间
+        if (null != projectQueryDTO.getStartAnnualRate()) {
+            queryWrapper.lambda().ge(Project::getAnnualRate,
+                    projectQueryDTO.getStartAnnualRate());
+        }
+        if (null != projectQueryDTO.getEndAnnualRate()) {
+            queryWrapper.lambda().le(Project::getAnnualRate,
+                    projectQueryDTO.getStartAnnualRate());
+        } // 借款期限 -- 区间
+        if (null != projectQueryDTO.getStartPeriod()) {
+            queryWrapper.lambda().ge(Project::getPeriod,
+                    projectQueryDTO.getStartPeriod());
+        }
+        if (null != projectQueryDTO.getEndPeriod()) {
+            queryWrapper.lambda().le(Project::getPeriod,
+                    projectQueryDTO.getEndPeriod());
+        } // 标的状态
+        if (StringUtils.isNotBlank(projectQueryDTO.getProjectStatus())) {
+            queryWrapper.lambda().eq(Project::getProjectStatus,
+                    projectQueryDTO.getProjectStatus());
+        }
+        //分页
+        // 构造分页对象
+        Page<Project> page = new Page<>(pageNo, pageSize);
+
+        //排序
+        if (StringUtils.isNotBlank(order) && StringUtils.isNotBlank(sortBy)) {
+            if (order.toLowerCase().equals("asc")) {
+                queryWrapper.orderByAsc(sortBy);
+            } else if (order.toLowerCase().equals("desc")) {
+                queryWrapper.orderByDesc(sortBy);
+            }
+        } else {
+            // 默认按照标的最新创建时间排序
+            queryWrapper.lambda().orderByDesc(Project::getCreateDate);
+        }
+
+        //执行查询
+        IPage<Project> iPage = page(page, queryWrapper);
+
+        //封装结果
+        List<ProjectDTO> projectDTOList = convertProjectEntityListToDTOList(iPage.getRecords());
+        return new PageVO<>(projectDTOList, iPage.getTotal(), pageNo, pageSize);
+
+    }
+
+    private List<ProjectDTO> convertProjectEntityListToDTOList(java.util.List<Project> projectList) {
+        if (projectList == null) {
+            return null;
+        }
+        List<ProjectDTO> dtoList = new ArrayList<>();
+        projectList.forEach(project -> {
+            ProjectDTO projectDTO = new ProjectDTO();
+            BeanUtils.copyProperties(project, projectDTO);
+            dtoList.add(projectDTO);
+        });
+        return dtoList;
     }
 
     private Project convertProjectDTOToEntity(ProjectDTO projectDTO) {
