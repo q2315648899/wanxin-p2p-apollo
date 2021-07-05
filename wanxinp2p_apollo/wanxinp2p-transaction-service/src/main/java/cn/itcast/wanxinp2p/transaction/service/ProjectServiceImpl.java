@@ -34,7 +34,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
 
     @Override
     public ProjectDTO createProject(ProjectDTO projectDTO) {
-        RestResponse<ConsumerDTO> restResponse = consumerApiAgent.getCurrConsumer();
+        RestResponse<ConsumerDTO> restResponse = consumerApiAgent.getCurrConsumer(SecurityUtil.getUser().getMobile());
         projectDTO.setConsumerId(restResponse.getResult().getId());
         projectDTO.setUserNo(restResponse.getResult().getUserNo());
         // 生成标的编码
