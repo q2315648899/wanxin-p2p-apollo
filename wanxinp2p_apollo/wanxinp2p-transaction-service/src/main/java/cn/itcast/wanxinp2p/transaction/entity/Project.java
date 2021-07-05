@@ -115,11 +115,11 @@ public class Project implements Serializable {
     @TableField("CREATE_DATE")
     private LocalDateTime createDate;
 
-	/**
-	 * 修改时间
-	 */
-	@TableField("MODIFY_DATE")
-	private LocalDateTime modifyDate;
+//	/**
+//	 * 修改时间
+//	 */
+//	@TableField("MODIFY_DATE")
+//	private LocalDateTime modifyDate;
 
     /**
      * 可用状态
