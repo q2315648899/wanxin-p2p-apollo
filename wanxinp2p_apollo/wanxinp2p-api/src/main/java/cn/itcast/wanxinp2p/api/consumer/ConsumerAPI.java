@@ -1,5 +1,6 @@
 package cn.itcast.wanxinp2p.api.consumer;
 
+import cn.itcast.wanxinp2p.api.consumer.model.ConsumerDTO;
 import cn.itcast.wanxinp2p.api.consumer.model.ConsumerRegisterDTO;
 import cn.itcast.wanxinp2p.api.consumer.model.ConsumerRequest;
 import cn.itcast.wanxinp2p.api.depository.model.GatewayRequest;
@@ -23,5 +24,11 @@ public interface ConsumerAPI {
      * @return
      */
     RestResponse<GatewayRequest> createConsumer(ConsumerRequest consumerRequest);
+
+    /**
+     * 获得当前登录用户
+     * @return
+     */
+    RestResponse<ConsumerDTO> getCurrConsumer();
 
 }

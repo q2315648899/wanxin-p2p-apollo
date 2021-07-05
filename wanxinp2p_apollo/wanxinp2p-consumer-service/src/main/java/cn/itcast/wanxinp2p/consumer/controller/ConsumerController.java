@@ -1,6 +1,7 @@
 package cn.itcast.wanxinp2p.consumer.controller;
 
 import cn.itcast.wanxinp2p.api.consumer.ConsumerAPI;
+import cn.itcast.wanxinp2p.api.consumer.model.ConsumerDTO;
 import cn.itcast.wanxinp2p.api.consumer.model.ConsumerRegisterDTO;
 import cn.itcast.wanxinp2p.api.consumer.model.ConsumerRequest;
 import cn.itcast.wanxinp2p.api.depository.model.GatewayRequest;
@@ -47,14 +48,6 @@ public class ConsumerController implements ConsumerAPI {
         return RestResponse.success();
     }
 
-    @ApiOperation("过网关受保护资源，进行认证拦截测试")
-    @ApiImplicitParam(name = "jsonToken", value = "访问令牌", required = true,
-            dataType = "String")
-    @GetMapping(value = "/m/consumers/test")
-    public RestResponse<String> testResources(String jsonToken) {
-        return RestResponse.success(EncryptUtil.decodeUTF8StringBase64(jsonToken));
-    }
-
     @Override
     @ApiOperation("生成开户请求数据")
     @ApiImplicitParam(name = "consumerRequest", value = "开户信息", required = true,
@@ -63,6 +56,22 @@ public class ConsumerController implements ConsumerAPI {
     public RestResponse<GatewayRequest> createConsumer(@RequestBody ConsumerRequest consumerRequest) {
         consumerRequest.setMobile(SecurityUtil.getUser().getMobile());
         return consumerService.createConsumer(consumerRequest);
+    }
+
+    @Override
+    @ApiOperation("获取登录用户信息")
+    @GetMapping("/l/currConsumer")
+    public RestResponse<ConsumerDTO> getCurrConsumer() {
+        ConsumerDTO consumerDTO = consumerService.getByMobile(SecurityUtil.getUser().getMobile());
+        return RestResponse.success(consumerDTO);
+    }
+
+    @ApiOperation("过网关受保护资源，进行认证拦截测试")
+    @ApiImplicitParam(name = "jsonToken", value = "访问令牌", required = true,
+            dataType = "String")
+    @GetMapping(value = "/m/consumers/test")
+    public RestResponse<String> testResources(String jsonToken) {
+        return RestResponse.success(EncryptUtil.decodeUTF8StringBase64(jsonToken));
     }
 
 }
