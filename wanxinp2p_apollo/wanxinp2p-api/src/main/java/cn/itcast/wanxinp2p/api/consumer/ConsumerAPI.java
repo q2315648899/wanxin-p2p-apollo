@@ -31,4 +31,10 @@ public interface ConsumerAPI {
      */
     RestResponse<ConsumerDTO> getCurrConsumer();
 
+    /**
+     * 获取当前登录用户
+     * @return
+     */
+    RestResponse<ConsumerDTO> getMyConsumer();
+
 }
