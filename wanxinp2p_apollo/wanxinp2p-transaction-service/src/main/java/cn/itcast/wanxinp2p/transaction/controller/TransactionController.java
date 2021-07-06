@@ -88,7 +88,9 @@ public class TransactionController implements TransactionApi {
     @PostMapping("/projects/indexes/q")
     public RestResponse<PageVO<ProjectDTO>> queryProjects(@RequestBody ProjectQueryDTO projectQueryDTO,
                                                           Integer pageNo, Integer pageSize, String sortBy, String order){
-        return null;
+        PageVO<ProjectDTO> projects = projectService.queryProjects(projectQueryDTO,
+                order, pageNo, pageSize, sortBy);
+        return RestResponse.success(projects);
     }
 
 }
