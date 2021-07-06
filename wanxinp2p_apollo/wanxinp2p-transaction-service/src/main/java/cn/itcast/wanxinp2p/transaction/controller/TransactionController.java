@@ -67,7 +67,8 @@ public class TransactionController implements TransactionApi {
     public RestResponse<String> projectsApprovalStatus(
             @PathVariable("id") Long id,
             @PathVariable("approveStatus") String approveStatus) {
-        return null;
+        String result = projectService.projectsApprovalStatus(id,approveStatus);
+        return RestResponse.success(result);
     }
 
 }

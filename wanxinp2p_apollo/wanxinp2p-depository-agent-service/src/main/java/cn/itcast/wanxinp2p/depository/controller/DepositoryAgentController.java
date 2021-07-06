@@ -2,6 +2,8 @@ package cn.itcast.wanxinp2p.depository.controller;
 
 import cn.itcast.wanxinp2p.api.consumer.model.ConsumerRequest;
 import cn.itcast.wanxinp2p.api.depository.DepositoryAgentApi;
+import cn.itcast.wanxinp2p.api.depository.model.DepositoryBaseResponse;
+import cn.itcast.wanxinp2p.api.depository.model.DepositoryResponseDTO;
 import cn.itcast.wanxinp2p.api.depository.model.GatewayRequest;
 import cn.itcast.wanxinp2p.api.transaction.model.ProjectDTO;
 import cn.itcast.wanxinp2p.common.domain.RestResponse;
@@ -29,7 +31,7 @@ public class DepositoryAgentController implements DepositoryAgentApi {
     @ApiImplicitParam(name = "consumerRequest", value = "开户信息", required = true,
             dataType = "ConsumerRequest", paramType = "body")
     @PostMapping("/l/consumers")
-    public RestResponse<GatewayRequest> createConsumer(@RequestBody ConsumerRequest  consumerRequest) {
+    public RestResponse<GatewayRequest> createConsumer(@RequestBody ConsumerRequest consumerRequest) {
         return RestResponse.success(depositoryRecordService.createConsumer(consumerRequest));
     }
 
@@ -39,7 +41,11 @@ public class DepositoryAgentController implements DepositoryAgentApi {
             required = true, dataType = "ProjectDTO", paramType = "body")
     @PostMapping("/l/createProject")
     public RestResponse<String> createProject(@RequestBody ProjectDTO projectDTO) {
-        return null;
+        DepositoryResponseDTO<DepositoryBaseResponse> depositoryResponse = depositoryRecordService.createProject(projectDTO);
+        RestResponse<String> restResponse = new RestResponse<String>();
+        restResponse.setResult(depositoryResponse.getRespData().getRespCode());
+        restResponse.setMsg(depositoryResponse.getRespData().getRespMsg());
+        return restResponse;
     }
 
 }
