@@ -31,4 +31,13 @@ public interface ProjectService {
     PageVO<ProjectDTO> queryProjectsByQueryDTO(ProjectQueryDTO projectQueryDTO,
                                                String order, Integer pageNo, Integer pageSize, String sortBy);
 
+    /**
+     * 管理员审核标的信息
+     *
+     * @param id 标的id
+     * @param approveStatus 审批状态
+     * @return String
+     */
+    String projectsApprovalStatus(Long id, String approveStatus);
+
 }
