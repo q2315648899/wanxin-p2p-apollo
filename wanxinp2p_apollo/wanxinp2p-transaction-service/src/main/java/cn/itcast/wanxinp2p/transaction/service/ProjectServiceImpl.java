@@ -140,7 +140,11 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         Project project = getById(id);
         ProjectDTO projectDTO = convertProjectEntityToDTO(project);
         //2.生成流水号(不存在才生成)
-        projectDTO.setRequestNo(CodeNoUtil.getNo(CodePrefixCode.CODE_REQUEST_PREFIX));
+        if(StringUtils.isBlank(project.getRequestNo())){
+            projectDTO.setRequestNo(CodeNoUtil.getNo(CodePrefixCode.CODE_REQUEST_PREFIX));
+            update(Wrappers.<Project>lambdaUpdate().set(Project::getRequestNo,
+                    projectDTO.getRequestNo()).eq(Project::getId,id));
+        }
 
         //3.通过feign远程访问存管代理服务，把标的信息传输过去
         RestResponse<String> restResponse = depositoryAgentApiAgent.createProject(projectDTO);
