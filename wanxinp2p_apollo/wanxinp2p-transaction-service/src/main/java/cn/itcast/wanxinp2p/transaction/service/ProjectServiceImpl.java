@@ -11,7 +11,9 @@ import cn.itcast.wanxinp2p.transaction.agent.DepositoryAgentApiAgent;
 import cn.itcast.wanxinp2p.transaction.common.constant.TransactionErrorCode;
 import cn.itcast.wanxinp2p.transaction.common.utils.SecurityUtil;
 import cn.itcast.wanxinp2p.transaction.entity.Project;
+import cn.itcast.wanxinp2p.transaction.entity.Tender;
 import cn.itcast.wanxinp2p.transaction.mapper.ProjectMapper;
+import cn.itcast.wanxinp2p.transaction.mapper.TenderMapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -23,8 +25,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -42,6 +46,9 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
 
     @Autowired
     private ContentSearchApiAgent contentSearchApiAgent;
+
+    @Autowired
+    private TenderMapper tenderMapper;
 
     @Override
     public ProjectDTO createProject(ProjectDTO projectDTO) {
@@ -144,10 +151,10 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         Project project = getById(id);
         ProjectDTO projectDTO = convertProjectEntityToDTO(project);
         //2.生成流水号(不存在才生成)
-        if(StringUtils.isBlank(project.getRequestNo())){
+        if (StringUtils.isBlank(project.getRequestNo())) {
             projectDTO.setRequestNo(CodeNoUtil.getNo(CodePrefixCode.CODE_REQUEST_PREFIX));
             update(Wrappers.<Project>lambdaUpdate().set(Project::getRequestNo,
-                    projectDTO.getRequestNo()).eq(Project::getId,id));
+                    projectDTO.getRequestNo()).eq(Project::getId, id));
         }
 
         //3.通过feign远程访问存管代理服务，把标的信息传输过去
@@ -203,5 +210,47 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
             throw new BusinessException(CommonErrorCode.UNKOWN);
         }
         return esResponse.getResult();
+    }
+
+    @Override
+    public List<ProjectDTO> queryProjectsIds(String ids) {
+        //1. 查询标的信息
+        QueryWrapper<Project> queryWrapper = new QueryWrapper<>();
+        List<Long> list = new ArrayList<>();
+        Arrays.asList(ids.split(",")).forEach(str -> {
+            list.add(Long.parseLong(str));
+        });
+        queryWrapper.lambda().in(Project::getId, list); // .... where  id  in  (1,2,3,4,5)
+        List<Project> projects = list(queryWrapper);
+        List<ProjectDTO> dtos = new ArrayList<>();
+        //2.转换为DTO对象
+        for (Project project : projects) {
+            ProjectDTO projectDTO = convertProjectEntityToDTO(project);
+            // 3. 获取剩余额度
+            projectDTO.setRemainingAmount(getProjectRemainingAmount(project));
+            //4. 查询出借人数
+            projectDTO.setTenderCount(tenderMapper.selectCount(Wrappers.<Tender>lambdaQuery().eq(Tender::getProjectId, project.getId())));
+            dtos.add(projectDTO);
+        }
+        return dtos;
+
+    }
+
+    /**
+     * * 获取标的剩余可投额度
+     *
+     * @param project
+     * @return
+     */
+    private BigDecimal getProjectRemainingAmount(Project project) {
+        // 根据标的id在投标表查询已投金额
+        List<BigDecimal> decimalList = tenderMapper.selectAmountInvestedByProjectId(project.getId());
+        // 求和结果集
+        BigDecimal amountInvested = new BigDecimal("0.0");
+        for (BigDecimal d : decimalList) {
+            amountInvested = amountInvested.add(d);
+        }
+        // 得到剩余额度
+        return project.getAmount().subtract(amountInvested);
     }
 }

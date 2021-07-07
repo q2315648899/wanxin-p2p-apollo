@@ -100,7 +100,8 @@ public class TransactionController implements TransactionApi {
     @ApiOperation("通过ids获取多个标的")
     @GetMapping("/projects/{ids}")
     public RestResponse<List<ProjectDTO>> queryProjectsIds(@PathVariable String ids) {
-        return null;
+        List<ProjectDTO> projectDTOS = projectService.queryProjectsIds(ids);
+        return RestResponse.success(projectDTOS);
     }
 
     @Override
