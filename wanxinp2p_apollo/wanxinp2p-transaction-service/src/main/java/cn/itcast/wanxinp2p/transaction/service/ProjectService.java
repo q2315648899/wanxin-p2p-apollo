@@ -2,6 +2,7 @@ package cn.itcast.wanxinp2p.transaction.service;
 
 import cn.itcast.wanxinp2p.api.transaction.model.ProjectDTO;
 import cn.itcast.wanxinp2p.api.transaction.model.ProjectQueryDTO;
+import cn.itcast.wanxinp2p.api.transaction.model.TenderOverviewDTO;
 import cn.itcast.wanxinp2p.common.domain.PageVO;
 
 import java.util.List;
@@ -54,9 +55,17 @@ public interface ProjectService {
     PageVO<ProjectDTO> queryProjects(ProjectQueryDTO projectQueryDTO, String order, Integer pageNo, Integer pageSize, String sortBy);
 
     /**
-     * 通过ids获取多个标的（ids：可能是多个标的拼接在一起的字符串）
+     * 通过ids获取多个标的（ids：可能是多个标的id拼接在一起的字符串）
      * @param ids
      * @return
      */
     List<ProjectDTO> queryProjectsIds(String ids);
+
+    /**
+     * 根据标的id查询投标记录
+     * @param id
+     * @return
+     */
+    List<TenderOverviewDTO> queryTendersByProjectId(Long id);
+
 }

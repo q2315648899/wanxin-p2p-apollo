@@ -3,8 +3,10 @@ package cn.itcast.wanxinp2p.transaction.service;
 import cn.itcast.wanxinp2p.api.consumer.model.ConsumerDTO;
 import cn.itcast.wanxinp2p.api.transaction.model.ProjectDTO;
 import cn.itcast.wanxinp2p.api.transaction.model.ProjectQueryDTO;
+import cn.itcast.wanxinp2p.api.transaction.model.TenderOverviewDTO;
 import cn.itcast.wanxinp2p.common.domain.*;
 import cn.itcast.wanxinp2p.common.util.CodeNoUtil;
+import cn.itcast.wanxinp2p.common.util.CommonUtil;
 import cn.itcast.wanxinp2p.transaction.agent.ConsumerApiAgent;
 import cn.itcast.wanxinp2p.transaction.agent.ContentSearchApiAgent;
 import cn.itcast.wanxinp2p.transaction.agent.DepositoryAgentApiAgent;
@@ -233,7 +235,6 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
             dtos.add(projectDTO);
         }
         return dtos;
-
     }
 
     /**
@@ -253,4 +254,18 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         // 得到剩余额度
         return project.getAmount().subtract(amountInvested);
     }
+
+    @Override
+    public List<TenderOverviewDTO> queryTendersByProjectId(Long id) {
+        List<Tender> tenderList = tenderMapper.selectList(Wrappers.<Tender>lambdaQuery().eq(Tender::getProjectId, id));
+        List<TenderOverviewDTO> tenderOverviewDTOList = new ArrayList<>();
+        tenderList.forEach(tender -> {
+            TenderOverviewDTO tenderOverviewDTO = new TenderOverviewDTO();
+            BeanUtils.copyProperties(tender, tenderOverviewDTO);
+            tenderOverviewDTO.setConsumerUsername(CommonUtil.hiddenMobile(tenderOverviewDTO.getConsumerUsername()));
+            tenderOverviewDTOList.add(tenderOverviewDTO);
+        });
+        return tenderOverviewDTOList;
+    }
+
 }

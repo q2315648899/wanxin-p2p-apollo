@@ -108,7 +108,8 @@ public class TransactionController implements TransactionApi {
     @ApiOperation("根据标的id查询投标记录")
     @GetMapping("/tenders/projects/{id}")
     public RestResponse<List<TenderOverviewDTO>> queryTendersByProjectId(@PathVariable Long id) {
-        return null;
+        List<TenderOverviewDTO> tenderOverviewDTOS = projectService.queryTendersByProjectId(id);
+        return RestResponse.success(tenderOverviewDTOS);
     }
 
 }
