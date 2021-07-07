@@ -3,6 +3,7 @@ package cn.itcast.wanxinp2p.transaction.controller;
 import cn.itcast.wanxinp2p.api.transaction.TransactionApi;
 import cn.itcast.wanxinp2p.api.transaction.model.ProjectDTO;
 import cn.itcast.wanxinp2p.api.transaction.model.ProjectQueryDTO;
+import cn.itcast.wanxinp2p.api.transaction.model.TenderOverviewDTO;
 import cn.itcast.wanxinp2p.common.domain.PageVO;
 import cn.itcast.wanxinp2p.common.domain.RestResponse;
 import cn.itcast.wanxinp2p.transaction.service.ProjectService;
@@ -12,6 +13,8 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @Author: wong
@@ -67,7 +70,7 @@ public class TransactionController implements TransactionApi {
     public RestResponse<String> projectsApprovalStatus(
             @PathVariable("id") Long id,
             @PathVariable("approveStatus") String approveStatus) {
-        String result = projectService.projectsApprovalStatus(id,approveStatus);
+        String result = projectService.projectsApprovalStatus(id, approveStatus);
         return RestResponse.success(result);
     }
 
@@ -87,10 +90,24 @@ public class TransactionController implements TransactionApi {
                     dataType = "string", paramType = "query")})
     @PostMapping("/projects/indexes/q")
     public RestResponse<PageVO<ProjectDTO>> queryProjects(@RequestBody ProjectQueryDTO projectQueryDTO,
-                                                          Integer pageNo, Integer pageSize, String sortBy, String order){
+                                                          Integer pageNo, Integer pageSize, String sortBy, String order) {
         PageVO<ProjectDTO> projects = projectService.queryProjects(projectQueryDTO,
                 order, pageNo, pageSize, sortBy);
         return RestResponse.success(projects);
+    }
+
+    @Override
+    @ApiOperation("通过ids获取多个标的")
+    @GetMapping("/projects/{ids}")
+    public RestResponse<List<ProjectDTO>> queryProjectsIds(@PathVariable String ids) {
+        return null;
+    }
+
+    @Override
+    @ApiOperation("根据标的id查询投标记录")
+    @GetMapping("/tenders/projects/{id}")
+    public RestResponse<List<TenderOverviewDTO>> queryTendersByProjectId(@PathVariable Long id) {
+        return null;
     }
 
 }

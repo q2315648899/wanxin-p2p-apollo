@@ -1,6 +1,7 @@
 package cn.itcast.wanxinp2p.consumer.controller;
 
 import cn.itcast.wanxinp2p.api.consumer.ConsumerAPI;
+import cn.itcast.wanxinp2p.api.consumer.model.BorrowerDTO;
 import cn.itcast.wanxinp2p.api.consumer.model.ConsumerDTO;
 import cn.itcast.wanxinp2p.api.consumer.model.ConsumerRegisterDTO;
 import cn.itcast.wanxinp2p.api.consumer.model.ConsumerRequest;
@@ -69,6 +70,15 @@ public class ConsumerController implements ConsumerAPI {
     public RestResponse<ConsumerDTO> getMyConsumer() {
         ConsumerDTO consumerDTO = consumerService.getByMobile(SecurityUtil.getUser().getMobile());
         return RestResponse.success(consumerDTO);
+    }
+
+    @Override
+    @ApiOperation("获取借款人用户信息")
+    @ApiImplicitParam(name = "id", value = "用户标识", required = true,
+            dataType = "Long", paramType = "path")
+    @GetMapping("/my/borrowers/{id}")
+    public RestResponse<BorrowerDTO> getBorrower(@PathVariable Long id){
+        return null;
     }
 
     @ApiOperation("过网关受保护资源，进行认证拦截测试")
