@@ -14,8 +14,8 @@ public interface ContentSearchApiAgent {
     @PostMapping(value = "/content-search/l/projects/indexes/q")
     RestResponse<PageVO<ProjectDTO>> queryProjectIndex(
             @RequestBody ProjectQueryDTO projectQueryParamsDTO,
-            @RequestParam Integer pageNo,
-            @RequestParam Integer pageSize,
-            @RequestParam(required = false) String sortBy,
-            @RequestParam(required = false) String order);
+            @RequestParam("pageNo") Integer pageNo,
+            @RequestParam("pageSize") Integer pageSize,
+            @RequestParam(name = "sortBy", required = false) String sortBy,
+            @RequestParam(name = "order", required = false) String order);
 }

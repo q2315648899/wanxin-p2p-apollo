@@ -4,11 +4,13 @@ import cn.itcast.wanxinp2p.api.search.model.ProjectQueryParamsDTO;
 import cn.itcast.wanxinp2p.api.transaction.model.ProjectDTO;
 import cn.itcast.wanxinp2p.common.domain.PageVO;
 import cn.itcast.wanxinp2p.common.domain.RestResponse;
+import cn.itcast.wanxinp2p.search.service.ProjectIndexService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,6 +24,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Api(value = "检索服务", tags = "ContentSearch", description = "检索服务API")
 public class ContentSearchController {
+
+    @Autowired
+    private ProjectIndexService projectIndexService;
 
     @ApiOperation("检索标的")
     @ApiImplicitParams({
@@ -43,8 +48,11 @@ public class ContentSearchController {
             @RequestParam Integer pageNo,
             @RequestParam Integer pageSize,
             @RequestParam(required = false) String sortBy,
-            @RequestParam(required = false) String order){
-        return null;
+            @RequestParam(required = false) String order) {
+        PageVO<ProjectDTO> projects = projectIndexService
+                .queryProjectIndex(projectQueryParamsDTO, pageNo, pageSize, sortBy,
+                        order);
+        return RestResponse.success(projects);
     }
 
 }
