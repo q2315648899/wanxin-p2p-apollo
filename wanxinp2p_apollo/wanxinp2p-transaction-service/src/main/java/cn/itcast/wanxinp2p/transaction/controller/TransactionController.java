@@ -1,9 +1,7 @@
 package cn.itcast.wanxinp2p.transaction.controller;
 
 import cn.itcast.wanxinp2p.api.transaction.TransactionApi;
-import cn.itcast.wanxinp2p.api.transaction.model.ProjectDTO;
-import cn.itcast.wanxinp2p.api.transaction.model.ProjectQueryDTO;
-import cn.itcast.wanxinp2p.api.transaction.model.TenderOverviewDTO;
+import cn.itcast.wanxinp2p.api.transaction.model.*;
 import cn.itcast.wanxinp2p.common.domain.PageVO;
 import cn.itcast.wanxinp2p.common.domain.RestResponse;
 import cn.itcast.wanxinp2p.transaction.service.ProjectService;
@@ -110,6 +108,17 @@ public class TransactionController implements TransactionApi {
     public RestResponse<List<TenderOverviewDTO>> queryTendersByProjectId(@PathVariable Long id) {
         List<TenderOverviewDTO> tenderOverviewDTOS = projectService.queryTendersByProjectId(id);
         return RestResponse.success(tenderOverviewDTOS);
+    }
+
+    @Override
+    @ApiOperation("用户投标")
+    @ApiImplicitParam(name = "projectInvestDTO", value = "投标信息",
+            required = true, dataType = "ProjectInvestDTO", paramType =
+            "body")
+    @PostMapping("/my/tenders")
+    public RestResponse<TenderDTO> createTender(@RequestBody ProjectInvestDTO
+                                                        projectInvestDTO){
+        return null;
     }
 
 }
