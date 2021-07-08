@@ -78,7 +78,7 @@ public class ConsumerController implements ConsumerAPI {
             dataType = "Long", paramType = "path")
     @GetMapping("/my/borrowers/{id}")
     public RestResponse<BorrowerDTO> getBorrower(@PathVariable Long id){
-        return null;
+        return RestResponse.success(consumerService.getBorrower(id));
     }
 
     @ApiOperation("过网关受保护资源，进行认证拦截测试")

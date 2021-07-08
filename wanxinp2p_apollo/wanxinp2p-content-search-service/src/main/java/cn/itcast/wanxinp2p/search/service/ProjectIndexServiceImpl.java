@@ -100,6 +100,7 @@ public class ProjectIndexServiceImpl implements ProjectIndexService{
                 projectDTO.setPeriod(period);
                 projectDTO.setName(name);
                 projectDTO.setDescription(description);
+                projectDTO.setId(Long.parseLong(sourceAsMap.get("id").toString()));
                 projectDTO.setAnnualRate(annualRate);
                 list.add(projectDTO);
             }
