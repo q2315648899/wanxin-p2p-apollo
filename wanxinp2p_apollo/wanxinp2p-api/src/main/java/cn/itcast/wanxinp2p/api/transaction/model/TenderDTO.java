@@ -1,4 +1,4 @@
-﻿package cn.itcast.wanxinp2p.api.transaction.model;
+package cn.itcast.wanxinp2p.api.transaction.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;

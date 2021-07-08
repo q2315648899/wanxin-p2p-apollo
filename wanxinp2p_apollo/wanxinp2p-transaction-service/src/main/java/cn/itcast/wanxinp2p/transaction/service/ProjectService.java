@@ -1,8 +1,6 @@
 package cn.itcast.wanxinp2p.transaction.service;
 
-import cn.itcast.wanxinp2p.api.transaction.model.ProjectDTO;
-import cn.itcast.wanxinp2p.api.transaction.model.ProjectQueryDTO;
-import cn.itcast.wanxinp2p.api.transaction.model.TenderOverviewDTO;
+import cn.itcast.wanxinp2p.api.transaction.model.*;
 import cn.itcast.wanxinp2p.common.domain.PageVO;
 
 import java.util.List;
@@ -68,4 +66,10 @@ public interface ProjectService {
      */
     List<TenderOverviewDTO> queryTendersByProjectId(Long id);
 
+    /**
+     * 用户投标
+     * @param projectInvestDTO
+     * @return
+     */
+    TenderDTO createTender(ProjectInvestDTO projectInvestDTO);
 }

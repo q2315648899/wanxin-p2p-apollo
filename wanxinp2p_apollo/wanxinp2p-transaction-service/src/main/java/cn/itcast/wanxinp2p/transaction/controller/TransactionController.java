@@ -118,7 +118,8 @@ public class TransactionController implements TransactionApi {
     @PostMapping("/my/tenders")
     public RestResponse<TenderDTO> createTender(@RequestBody ProjectInvestDTO
                                                         projectInvestDTO){
-        return null;
+        TenderDTO tenderDTO = projectService.createTender(projectInvestDTO);
+        return RestResponse.success(tenderDTO);
     }
 
 }
