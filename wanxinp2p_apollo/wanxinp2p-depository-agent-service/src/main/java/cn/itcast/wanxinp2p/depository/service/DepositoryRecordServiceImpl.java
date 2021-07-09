@@ -99,20 +99,40 @@ public class DepositoryRecordServiceImpl extends ServiceImpl<DepositoryRecordMap
     @Override
     public DepositoryResponseDTO<DepositoryBaseResponse> userAutoPreTransaction(UserAutoPreTransactionRequest userAutoPreTransactionRequest) {
         //1. 保存交易记录（实现幂等性）
-        DepositoryRecord depositoryRecord=new DepositoryRecord(userAutoPreTransactionRequest.getRequestNo(),userAutoPreTransactionRequest.getBizType(),"UserAutoPreTransactionRequest",userAutoPreTransactionRequest.getId());
-        DepositoryResponseDTO<DepositoryBaseResponse> responseDTO=handleIdempotent(depositoryRecord);
-        if(responseDTO!=null){
+        DepositoryRecord depositoryRecord = new DepositoryRecord(userAutoPreTransactionRequest.getRequestNo(), userAutoPreTransactionRequest.getBizType(), "UserAutoPreTransactionRequest", userAutoPreTransactionRequest.getId());
+        DepositoryResponseDTO<DepositoryBaseResponse> responseDTO = handleIdempotent(depositoryRecord);
+        if (responseDTO != null) {
             return responseDTO;
         }
         depositoryRecord = getEntityByRequestNo(userAutoPreTransactionRequest.getRequestNo());
 
         //2. 签名
-        String jsonString=JSON.toJSONString(userAutoPreTransactionRequest);
-        String reqData=EncryptUtil.encodeUTF8StringBase64(jsonString);
+        String jsonString = JSON.toJSONString(userAutoPreTransactionRequest);
+        String reqData = EncryptUtil.encodeUTF8StringBase64(jsonString);
 
         //3. 发送数据到银行存管系统
         String url = configService.getDepositoryUrl() + "/service";
         return sendHttpGet("USER_AUTO_PRE_TRANSACTION", url, reqData, depositoryRecord);
+    }
+
+    @Override
+    public DepositoryResponseDTO<DepositoryBaseResponse> confirmLoan(LoanRequest loanRequest) {
+        DepositoryRecord depositoryRecord = new DepositoryRecord(loanRequest.getRequestNo(), DepositoryRequestTypeCode.FULL_LOAN.getCode(), "LoanRequest", loanRequest.getId());
+        //幂等性实现
+        DepositoryResponseDTO<DepositoryBaseResponse> responseDTO = handleIdempotent(depositoryRecord);
+        if (responseDTO != null) {
+            return responseDTO;
+        }
+
+        depositoryRecord = getEntityByRequestNo(loanRequest.getRequestNo());
+
+        //准备签名
+        String jsonString = JSON.toJSONString(loanRequest);
+        String reqData = EncryptUtil.encodeUTF8StringBase64(jsonString);
+
+        //发送数据到银行存管系统
+        String url = configService.getDepositoryUrl() + "/service";
+        return sendHttpGet("CONFIRM_LOAN", url, reqData, depositoryRecord);
     }
 
     /**

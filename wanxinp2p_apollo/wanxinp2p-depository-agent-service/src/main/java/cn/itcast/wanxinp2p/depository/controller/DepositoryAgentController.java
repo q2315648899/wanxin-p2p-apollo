@@ -65,7 +65,8 @@ public class DepositoryAgentController implements DepositoryAgentApi {
             true, dataType = "LoanRequest", paramType = "body")
     @PostMapping("l/confirm-loan")
     public RestResponse<String> confirmLoan(@RequestBody LoanRequest loanRequest) {
-        return null;
+        DepositoryResponseDTO<DepositoryBaseResponse> depositoryResponse = depositoryRecordService.confirmLoan(loanRequest);
+        return getRestResponse(depositoryResponse);
     }
 
     @Override
