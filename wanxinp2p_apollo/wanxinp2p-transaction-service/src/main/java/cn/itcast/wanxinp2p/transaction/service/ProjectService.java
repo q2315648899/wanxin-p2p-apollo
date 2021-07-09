@@ -72,4 +72,14 @@ public interface ProjectService {
      * @return
      */
     TenderDTO createTender(ProjectInvestDTO projectInvestDTO);
+
+    /**
+     * 审核标的满标放款
+     * @param id
+     * @param approveStatus
+     * @param commission
+     * @return String
+     */
+    String loansApprovalStatus(Long id, String approveStatus, String commission);
+
 }
