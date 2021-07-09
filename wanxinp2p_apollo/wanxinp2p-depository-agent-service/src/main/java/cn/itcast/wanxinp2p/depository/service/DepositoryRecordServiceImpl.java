@@ -96,6 +96,25 @@ public class DepositoryRecordServiceImpl extends ServiceImpl<DepositoryRecordMap
         return sendHttpGet("CREATE_PROJECT", url, reqData, depositoryRecord);
     }
 
+    @Override
+    public DepositoryResponseDTO<DepositoryBaseResponse> userAutoPreTransaction(UserAutoPreTransactionRequest userAutoPreTransactionRequest) {
+        //1. 保存交易记录（实现幂等性）
+        DepositoryRecord depositoryRecord=new DepositoryRecord(userAutoPreTransactionRequest.getRequestNo(),userAutoPreTransactionRequest.getBizType(),"UserAutoPreTransactionRequest",userAutoPreTransactionRequest.getId());
+        DepositoryResponseDTO<DepositoryBaseResponse> responseDTO=handleIdempotent(depositoryRecord);
+        if(responseDTO!=null){
+            return responseDTO;
+        }
+        depositoryRecord = getEntityByRequestNo(userAutoPreTransactionRequest.getRequestNo());
+
+        //2. 签名
+        String jsonString=JSON.toJSONString(userAutoPreTransactionRequest);
+        String reqData=EncryptUtil.encodeUTF8StringBase64(jsonString);
+
+        //3. 发送数据到银行存管系统
+        String url = configService.getDepositoryUrl() + "/service";
+        return sendHttpGet("USER_AUTO_PRE_TRANSACTION", url, reqData, depositoryRecord);
+    }
+
     /**
      * 向银行存管系统发送数据
      *
