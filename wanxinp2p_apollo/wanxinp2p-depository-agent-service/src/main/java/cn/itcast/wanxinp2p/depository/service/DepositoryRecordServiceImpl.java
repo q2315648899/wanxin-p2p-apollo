@@ -2,6 +2,7 @@ package cn.itcast.wanxinp2p.depository.service;
 
 import cn.itcast.wanxinp2p.api.consumer.model.ConsumerRequest;
 import cn.itcast.wanxinp2p.api.depository.model.*;
+import cn.itcast.wanxinp2p.api.transaction.model.ModifyProjectStatusDTO;
 import cn.itcast.wanxinp2p.api.transaction.model.ProjectDTO;
 import cn.itcast.wanxinp2p.common.cache.Cache;
 import cn.itcast.wanxinp2p.common.domain.BusinessException;
@@ -133,6 +134,28 @@ public class DepositoryRecordServiceImpl extends ServiceImpl<DepositoryRecordMap
         //发送数据到银行存管系统
         String url = configService.getDepositoryUrl() + "/service";
         return sendHttpGet("CONFIRM_LOAN", url, reqData, depositoryRecord);
+    }
+
+    @Override
+    public DepositoryResponseDTO<DepositoryBaseResponse> modifyProjectStatus(ModifyProjectStatusDTO modifyProjectStatusDTO) {
+        DepositoryRecord depositoryRecord = new DepositoryRecord(modifyProjectStatusDTO.getRequestNo(), DepositoryRequestTypeCode.MODIFY_STATUS.getCode(), "Project", modifyProjectStatusDTO.getId());
+
+        //幂等性实现
+        DepositoryResponseDTO<DepositoryBaseResponse> responseDTO = handleIdempotent(depositoryRecord);
+
+        if (responseDTO != null) {
+            return responseDTO;
+        }
+
+        depositoryRecord = getEntityByRequestNo(modifyProjectStatusDTO.getRequestNo());
+
+        //准备签名
+        String jsonString = JSON.toJSONString(modifyProjectStatusDTO);
+        String reqData = EncryptUtil.encodeUTF8StringBase64(jsonString);
+
+        //发送数据到银行存管系统
+        String url = configService.getDepositoryUrl() + "/service";
+        return sendHttpGet("MODIFY_PROJECT", url, reqData, depositoryRecord);
     }
 
     /**
