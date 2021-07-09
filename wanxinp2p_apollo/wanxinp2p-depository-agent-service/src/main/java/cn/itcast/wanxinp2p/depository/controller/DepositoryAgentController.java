@@ -2,10 +2,7 @@ package cn.itcast.wanxinp2p.depository.controller;
 
 import cn.itcast.wanxinp2p.api.consumer.model.ConsumerRequest;
 import cn.itcast.wanxinp2p.api.depository.DepositoryAgentApi;
-import cn.itcast.wanxinp2p.api.depository.model.DepositoryBaseResponse;
-import cn.itcast.wanxinp2p.api.depository.model.DepositoryResponseDTO;
-import cn.itcast.wanxinp2p.api.depository.model.GatewayRequest;
-import cn.itcast.wanxinp2p.api.depository.model.UserAutoPreTransactionRequest;
+import cn.itcast.wanxinp2p.api.depository.model.*;
 import cn.itcast.wanxinp2p.api.transaction.model.ProjectDTO;
 import cn.itcast.wanxinp2p.common.domain.RestResponse;
 import cn.itcast.wanxinp2p.depository.service.DepositoryRecordService;
@@ -59,6 +56,15 @@ public class DepositoryAgentController implements DepositoryAgentApi {
     public RestResponse<String> userAutoPreTransaction(@RequestBody UserAutoPreTransactionRequest userAutoPreTransactionRequest) {
         DepositoryResponseDTO<DepositoryBaseResponse> depositoryResponse = depositoryRecordService.userAutoPreTransaction(userAutoPreTransactionRequest);
         return getRestResponse(depositoryResponse);
+    }
+
+    @Override
+    @ApiOperation(value = "审核标的满标放款")
+    @ApiImplicitParam(name = "loanRequest", value = "标的满标放款信息", required =
+            true, dataType = "LoanRequest", paramType = "body")
+    @PostMapping("l/confirm-loan")
+    public RestResponse<String> confirmLoan(@RequestBody LoanRequest loanRequest) {
+        return null;
     }
 
     /**
