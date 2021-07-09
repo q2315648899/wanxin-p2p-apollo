@@ -3,6 +3,7 @@ package cn.itcast.wanxinp2p.depository.controller;
 import cn.itcast.wanxinp2p.api.consumer.model.ConsumerRequest;
 import cn.itcast.wanxinp2p.api.depository.DepositoryAgentApi;
 import cn.itcast.wanxinp2p.api.depository.model.*;
+import cn.itcast.wanxinp2p.api.transaction.model.ModifyProjectStatusDTO;
 import cn.itcast.wanxinp2p.api.transaction.model.ProjectDTO;
 import cn.itcast.wanxinp2p.common.domain.RestResponse;
 import cn.itcast.wanxinp2p.depository.service.DepositoryRecordService;
@@ -64,6 +65,16 @@ public class DepositoryAgentController implements DepositoryAgentApi {
             true, dataType = "LoanRequest", paramType = "body")
     @PostMapping("l/confirm-loan")
     public RestResponse<String> confirmLoan(@RequestBody LoanRequest loanRequest) {
+        return null;
+    }
+
+    @Override
+    @ApiOperation(value = "修改标的状态")
+    @ApiImplicitParam(name = "modifyProjectStatusDTO", value = "修改标的状态DTO",
+            required = true, dataType = "ModifyProjectStatusDTO",
+            paramType = "body")
+    @PostMapping("l/modify-project-status")
+    public RestResponse<String> modifyProjectStatus(@RequestBody ModifyProjectStatusDTO modifyProjectStatusDTO) {
         return null;
     }
 
