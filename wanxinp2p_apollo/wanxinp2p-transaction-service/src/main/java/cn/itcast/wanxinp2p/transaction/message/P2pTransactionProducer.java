@@ -5,15 +5,16 @@ import cn.itcast.wanxinp2p.api.repayment.model.ProjectWithTendersDTO;
 import cn.itcast.wanxinp2p.transaction.entity.Project;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
+
 @Component
 public class P2pTransactionProducer {
 
-    @Autowired
+    @Resource
     private RocketMQTemplate rocketMQTemplate;
 
     public void updateProjectStatusAndStartRepayment(Project project,
