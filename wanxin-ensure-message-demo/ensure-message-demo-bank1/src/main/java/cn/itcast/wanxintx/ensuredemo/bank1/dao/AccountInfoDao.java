@@ -9,16 +9,18 @@ import org.springframework.stereotype.Component;
 public interface AccountInfoDao {
     /**
      * 修改某账号的余额
+     *
      * @param accountNo 账号
-     * @param amount 变动金额
+     * @param amount    变动金额
      * @return
      */
-        @Update("update account_info set account_balance=account_balance+#{amount} where account_no=#{accountNo}")
-                int updateAccountBalance(@Param("accountNo") String accountNo, @Param("amount") Double amount);
+    @Update("update account_info set account_balance=account_balance+#{amount} where account_no=#{accountNo}")
+    int updateAccountBalance(@Param("accountNo") String accountNo, @Param("amount") Double amount);
 
 
     /**
      * 查询某账号信息
+     *
      * @param accountNo 账号
      * @return
      */
@@ -27,6 +29,7 @@ public interface AccountInfoDao {
 
     /**
      * 查询某事务记录是否已执行
+     *
      * @param txNo 事务编号
      * @return
      */
@@ -35,6 +38,7 @@ public interface AccountInfoDao {
 
     /**
      * 保存某事务执行记录
+     *
      * @param txNo 事务编号
      * @return
      */

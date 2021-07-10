@@ -25,7 +25,7 @@ public class AccountInfoServiceImpl implements AccountInfoService {
     }
 
     @Override
-    @Transactional(isolation = Isolation.SERIALIZABLE)
+    @Transactional(isolation = Isolation.SERIALIZABLE)//设置事务隔离级别为SERIALIZABLE
     public void doUpdateAccountBalance(AccountChangeEvent accountChange) {
         accountInfoDao.updateAccountBalance(accountChange.getAccountNo(),accountChange.getAmount()*-1);
         accountInfoDao.addTx(accountChange.getTxNo());
