@@ -8,6 +8,7 @@ import cn.itcast.wanxinp2p.common.domain.DepositoryReturnCode;
 import cn.itcast.wanxinp2p.common.domain.RepaymentWayCode;
 import cn.itcast.wanxinp2p.common.util.DateUtil;
 import cn.itcast.wanxinp2p.repayment.entity.ReceivablePlan;
+import cn.itcast.wanxinp2p.repayment.entity.RepaymentDetail;
 import cn.itcast.wanxinp2p.repayment.entity.RepaymentPlan;
 import cn.itcast.wanxinp2p.repayment.mapper.PlanMapper;
 import cn.itcast.wanxinp2p.repayment.mapper.ReceivablePlanMapper;
@@ -75,6 +76,16 @@ public class RepaymentServiceImpl implements RepaymentService {
         }
 
         return DepositoryReturnCode.RETURN_CODE_00000.getCode();
+    }
+
+    @Override
+    public List<RepaymentPlan> selectDueRepayment(String date) {
+        return null;
+    }
+
+    @Override
+    public RepaymentDetail saveRepaymentDetail(RepaymentPlan repaymentPlan) {
+        return null;
     }
 
     //保存还款计划到数据库
