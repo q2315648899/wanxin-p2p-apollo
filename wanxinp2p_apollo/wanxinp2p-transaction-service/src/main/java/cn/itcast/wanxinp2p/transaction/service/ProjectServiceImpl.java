@@ -21,6 +21,7 @@ import cn.itcast.wanxinp2p.transaction.entity.Project;
 import cn.itcast.wanxinp2p.transaction.entity.Tender;
 import cn.itcast.wanxinp2p.transaction.mapper.ProjectMapper;
 import cn.itcast.wanxinp2p.transaction.mapper.TenderMapper;
+import cn.itcast.wanxinp2p.transaction.message.P2pTransactionProducer;
 import cn.itcast.wanxinp2p.transaction.model.LoginUser;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -57,6 +58,9 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
 
     @Autowired
     private TenderMapper tenderMapper;
+
+    @Autowired
+    private P2pTransactionProducer p2pTransactionProducer;
 
     @Override
     public ProjectDTO createProject(ProjectDTO projectDTO) {
@@ -407,6 +411,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
                 projectWithTendersDTO.setCommissionBorrowerAnnualRate(configService.getBorrowerAnnualRate());
 
                 //涉及到分布式事务  通过RocketMQ
+                p2pTransactionProducer.updateProjectStatusAndStartRepayment(project, projectWithTendersDTO);
 
 
                 return "审核成功";
