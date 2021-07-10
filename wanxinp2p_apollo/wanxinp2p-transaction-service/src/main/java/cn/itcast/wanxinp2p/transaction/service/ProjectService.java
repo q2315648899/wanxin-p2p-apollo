@@ -2,6 +2,7 @@ package cn.itcast.wanxinp2p.transaction.service;
 
 import cn.itcast.wanxinp2p.api.transaction.model.*;
 import cn.itcast.wanxinp2p.common.domain.PageVO;
+import cn.itcast.wanxinp2p.transaction.entity.Project;
 
 import java.util.List;
 
@@ -81,5 +82,12 @@ public interface ProjectService {
      * @return String
      */
     String loansApprovalStatus(Long id, String approveStatus, String commission);
+
+    /**
+     * 修改标的状态为还款中
+     * @param project
+     * @return
+     */
+    Boolean updateProjectStatusAndStartRepayment(Project project);
 
 }

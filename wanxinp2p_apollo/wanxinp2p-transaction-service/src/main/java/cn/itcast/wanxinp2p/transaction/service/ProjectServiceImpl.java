@@ -33,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -394,9 +395,9 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
             //向存管代理服务发起请求
             RestResponse<String> modifyProjectStatus = depositoryAgentApiAgent.modifyProjectStatus(modifyProjectStatusDTO);
             if (modifyProjectStatus.getResult().equals(DepositoryReturnCode.RETURN_CODE_00000.getCode())) {
-                //如果处理成功，就修改标的状态为还款中
-                project.setProjectStatus(ProjectCode.REPAYING.getCode());
-                updateById(project);
+//                //如果处理成功，就修改标的状态为还款中
+//                project.setProjectStatus(ProjectCode.REPAYING.getCode());
+//                updateById(project);
 
                 //4. 启动还款
                 //准备数据
@@ -427,6 +428,16 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
 
 
     }
+
+    //执行本地事务
+    @Transactional(rollbackFor = BusinessException.class)
+    @Override
+    public Boolean updateProjectStatusAndStartRepayment(Project project) {
+        //如果处理成功，就修改标的状态为还款中
+        project.setProjectStatus(ProjectCode.REPAYING.getCode());
+        return updateById(project);
+    }
+
 
     /**
      * 修改投标信息的状态为：已放款
