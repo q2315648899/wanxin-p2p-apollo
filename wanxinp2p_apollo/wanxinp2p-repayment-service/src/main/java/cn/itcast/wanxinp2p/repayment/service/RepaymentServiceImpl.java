@@ -3,6 +3,7 @@ package cn.itcast.wanxinp2p.repayment.service;
 import cn.itcast.wanxinp2p.api.repayment.model.ProjectWithTendersDTO;
 import cn.itcast.wanxinp2p.api.transaction.model.ProjectDTO;
 import cn.itcast.wanxinp2p.api.transaction.model.TenderDTO;
+import cn.itcast.wanxinp2p.common.domain.BusinessException;
 import cn.itcast.wanxinp2p.common.domain.DepositoryReturnCode;
 import cn.itcast.wanxinp2p.common.domain.RepaymentWayCode;
 import cn.itcast.wanxinp2p.common.util.DateUtil;
@@ -12,10 +13,10 @@ import cn.itcast.wanxinp2p.repayment.mapper.PlanMapper;
 import cn.itcast.wanxinp2p.repayment.mapper.ReceivablePlanMapper;
 import cn.itcast.wanxinp2p.repayment.model.EqualInterestRepayment;
 import cn.itcast.wanxinp2p.repayment.util.RepaymentUtil;
-import com.netflix.discovery.converters.Auto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ public class RepaymentServiceImpl implements RepaymentService {
     @Autowired
     private ReceivablePlanMapper receivablePlanMapper;
 
+    @Transactional(rollbackFor = BusinessException.class)
     @Override
     public String startRepayment(ProjectWithTendersDTO projectWithTendersDTO) {
 
