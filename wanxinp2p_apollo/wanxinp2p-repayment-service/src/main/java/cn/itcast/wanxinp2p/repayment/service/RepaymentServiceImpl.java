@@ -3,23 +3,25 @@ package cn.itcast.wanxinp2p.repayment.service;
 import cn.itcast.wanxinp2p.api.repayment.model.ProjectWithTendersDTO;
 import cn.itcast.wanxinp2p.api.transaction.model.ProjectDTO;
 import cn.itcast.wanxinp2p.api.transaction.model.TenderDTO;
-import cn.itcast.wanxinp2p.common.domain.BusinessException;
-import cn.itcast.wanxinp2p.common.domain.DepositoryReturnCode;
-import cn.itcast.wanxinp2p.common.domain.RepaymentWayCode;
+import cn.itcast.wanxinp2p.common.domain.*;
+import cn.itcast.wanxinp2p.common.util.CodeNoUtil;
 import cn.itcast.wanxinp2p.common.util.DateUtil;
 import cn.itcast.wanxinp2p.repayment.entity.ReceivablePlan;
 import cn.itcast.wanxinp2p.repayment.entity.RepaymentDetail;
 import cn.itcast.wanxinp2p.repayment.entity.RepaymentPlan;
 import cn.itcast.wanxinp2p.repayment.mapper.PlanMapper;
 import cn.itcast.wanxinp2p.repayment.mapper.ReceivablePlanMapper;
+import cn.itcast.wanxinp2p.repayment.mapper.RepaymentDetailMapper;
 import cn.itcast.wanxinp2p.repayment.model.EqualInterestRepayment;
 import cn.itcast.wanxinp2p.repayment.util.RepaymentUtil;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +35,9 @@ public class RepaymentServiceImpl implements RepaymentService {
 
     @Autowired
     private ReceivablePlanMapper receivablePlanMapper;
+
+    @Autowired
+    private RepaymentDetailMapper repaymentDetailMapper;
 
     @Transactional(rollbackFor = BusinessException.class)
     @Override
@@ -80,12 +85,46 @@ public class RepaymentServiceImpl implements RepaymentService {
 
     @Override
     public List<RepaymentPlan> selectDueRepayment(String date) {
-        return null;
+        return planMapper.selectDueRepayment(date);
     }
 
     @Override
     public RepaymentDetail saveRepaymentDetail(RepaymentPlan repaymentPlan) {
-        return null;
+        //1. 进行查询
+        RepaymentDetail repaymentDetail = repaymentDetailMapper.selectOne(Wrappers.<RepaymentDetail>lambdaQuery().eq(RepaymentDetail::getRepaymentPlanId, repaymentPlan.getId()));
+
+        //2. 查不到数据才进行保存
+        if (repaymentDetail == null) {
+            repaymentDetail = new RepaymentDetail();
+            // 还款计划项标识
+            repaymentDetail.setRepaymentPlanId(repaymentPlan.getId());
+            // 实还本息
+            repaymentDetail.setAmount(repaymentPlan.getAmount());
+            // 实际还款时间
+            repaymentDetail.setRepaymentDate(LocalDateTime.now());
+            // 请求流水号
+            repaymentDetail.setRequestNo(CodeNoUtil.getNo(CodePrefixCode.CODE_REQUEST_PREFIX));
+            // 未同步
+            repaymentDetail.setStatus(StatusCode.STATUS_OUT.getCode());
+            // 保存数据
+            repaymentDetailMapper.insert(repaymentDetail);
+        }
+
+        return repaymentDetail;
+    }
+
+    @Override
+    public void executeRepayment(String date) {
+        //查询到期的还款计划
+        List<RepaymentPlan> repaymentPlanList=selectDueRepayment(date);
+
+        //生成还款明细(未同步)
+        repaymentPlanList.forEach(repaymentPlan -> {
+            RepaymentDetail repaymentDetail=saveRepaymentDetail(repaymentPlan);
+            //未完待续...
+        });
+
+
     }
 
     //保存还款计划到数据库

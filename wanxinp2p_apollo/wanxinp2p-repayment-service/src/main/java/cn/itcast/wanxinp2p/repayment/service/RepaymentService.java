@@ -29,4 +29,10 @@ public interface RepaymentService {
      */
     RepaymentDetail saveRepaymentDetail(RepaymentPlan repaymentPlan);
 
+    /**
+     * 执行还款
+     */
+    void executeRepayment(String date);
+
+
 }
