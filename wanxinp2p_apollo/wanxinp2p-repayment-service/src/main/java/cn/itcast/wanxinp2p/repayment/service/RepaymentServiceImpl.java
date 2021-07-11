@@ -1,5 +1,6 @@
 package cn.itcast.wanxinp2p.repayment.service;
 
+import cn.itcast.wanxinp2p.api.depository.model.RepaymentRequest;
 import cn.itcast.wanxinp2p.api.depository.model.UserAutoPreTransactionRequest;
 import cn.itcast.wanxinp2p.api.repayment.model.ProjectWithTendersDTO;
 import cn.itcast.wanxinp2p.api.transaction.model.ProjectDTO;
@@ -8,10 +9,12 @@ import cn.itcast.wanxinp2p.common.domain.*;
 import cn.itcast.wanxinp2p.common.util.CodeNoUtil;
 import cn.itcast.wanxinp2p.common.util.DateUtil;
 import cn.itcast.wanxinp2p.repayment.agent.DepositoryAgentApiAgent;
+import cn.itcast.wanxinp2p.repayment.entity.ReceivableDetail;
 import cn.itcast.wanxinp2p.repayment.entity.ReceivablePlan;
 import cn.itcast.wanxinp2p.repayment.entity.RepaymentDetail;
 import cn.itcast.wanxinp2p.repayment.entity.RepaymentPlan;
 import cn.itcast.wanxinp2p.repayment.mapper.PlanMapper;
+import cn.itcast.wanxinp2p.repayment.mapper.ReceivableDetailMapper;
 import cn.itcast.wanxinp2p.repayment.mapper.ReceivablePlanMapper;
 import cn.itcast.wanxinp2p.repayment.mapper.RepaymentDetailMapper;
 import cn.itcast.wanxinp2p.repayment.model.EqualInterestRepayment;
@@ -43,6 +46,9 @@ public class RepaymentServiceImpl implements RepaymentService {
 
     @Autowired
     private DepositoryAgentApiAgent depositoryAgentApiAgent;
+
+    @Autowired
+    private ReceivableDetailMapper receivableDetailMapper;
 
     @Transactional(rollbackFor = BusinessException.class)
     @Override
@@ -148,6 +154,39 @@ public class RepaymentServiceImpl implements RepaymentService {
 
         //3. 返回结果
         return restResponse.getResult().equals(DepositoryReturnCode.RETURN_CODE_00000.getCode());
+    }
+
+    @Override
+    @Transactional
+    public Boolean confirmRepayment(RepaymentPlan repaymentPlan, RepaymentRequest repaymentRequest) {
+        //1. 更新还款明细：已同步
+        String preRequestNo=repaymentRequest.getPreRequestNo();
+        repaymentDetailMapper.update(null,Wrappers.<RepaymentDetail>lambdaUpdate().set(RepaymentDetail::getStatus,StatusCode.STATUS_IN.getCode()).eq(RepaymentDetail::getRequestNo,preRequestNo));
+
+        //2.1 更新receivable_plan表为：已收
+        //根据还款计划id，查询应收计划
+        List<ReceivablePlan> rereceivablePlanList = receivablePlanMapper.selectList(Wrappers.<ReceivablePlan>lambdaQuery().eq(ReceivablePlan::getRepaymentId,repaymentPlan.getId()));
+        rereceivablePlanList.forEach(receivablePlan -> {
+            receivablePlan.setReceivableStatus(1);
+            receivablePlanMapper.updateById(receivablePlan);
+
+            //2.2 保存数据到receivable_detail
+            // 构造应收明细
+            ReceivableDetail receivableDetail = new ReceivableDetail();
+            // 应收项标识
+            receivableDetail.setReceivableId(receivablePlan.getId());
+            // 实收本息
+            receivableDetail.setAmount(receivablePlan.getAmount());
+            // 实收时间
+            receivableDetail.setReceivableDate(DateUtil.now());
+            // 保存投资人应收明细
+            receivableDetailMapper.insert(receivableDetail);
+        });
+
+        //3. 更新还款计划：已还款
+        repaymentPlan.setRepaymentStatus("1");
+        int rows = planMapper.updateById(repaymentPlan);
+        return rows>0;
     }
 
     /**
