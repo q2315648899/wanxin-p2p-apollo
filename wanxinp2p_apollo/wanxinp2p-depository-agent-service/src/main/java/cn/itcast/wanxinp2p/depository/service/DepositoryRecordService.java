@@ -50,4 +50,11 @@ public interface DepositoryRecordService extends IService<DepositoryRecord> {
      * @return
      */
     DepositoryResponseDTO<DepositoryBaseResponse> modifyProjectStatus(ModifyProjectStatusDTO modifyProjectStatusDTO);
+
+    /**
+     * 还款确认
+     * @param repaymentRequest
+     * @return
+     */
+    DepositoryResponseDTO<DepositoryBaseResponse> confirmRepayment(RepaymentRequest repaymentRequest);
 }

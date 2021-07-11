@@ -87,7 +87,8 @@ public class DepositoryAgentController implements DepositoryAgentApi {
             "body")
     @PostMapping("l/confirm-repayment")
     public RestResponse<String> confirmRepayment(@RequestBody RepaymentRequest repaymentRequest) {
-        return null;
+        DepositoryResponseDTO<DepositoryBaseResponse> depositoryResponse = depositoryRecordService.confirmRepayment(repaymentRequest);
+        return getRestResponse(depositoryResponse);
     }
 
     /**

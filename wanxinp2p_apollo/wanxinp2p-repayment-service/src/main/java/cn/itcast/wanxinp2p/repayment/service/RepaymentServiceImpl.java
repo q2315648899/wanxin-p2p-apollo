@@ -139,13 +139,13 @@ public class RepaymentServiceImpl implements RepaymentService {
             RepaymentDetail repaymentDetail = saveRepaymentDetail(repaymentPlan);
 
             //还款预处理
-            Boolean preRepaymentResult = preRepayment(repaymentPlan,repaymentDetail.getRequestNo());
+            Boolean preRepaymentResult = preRepayment(repaymentPlan, repaymentDetail.getRequestNo());
             if (preRepaymentResult) {
                 // 未完待续... ...
                 System.out.println("还款预处理成功");
-                String preRequestNo=repaymentDetail.getRequestNo();
-                RepaymentRequest repaymentRequest=generateRepaymentRequest(repaymentPlan,preRequestNo);
-                repaymentProducer.confirmRepayment(repaymentPlan,repaymentRequest);
+                String preRequestNo = repaymentDetail.getRequestNo();
+                RepaymentRequest repaymentRequest = generateRepaymentRequest(repaymentPlan, preRequestNo);
+                repaymentProducer.confirmRepayment(repaymentPlan, repaymentRequest);
             }
         });
 
