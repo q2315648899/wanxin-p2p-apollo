@@ -51,4 +51,11 @@ public interface RepaymentService {
      */
     Boolean confirmRepayment(RepaymentPlan repaymentPlan, RepaymentRequest repaymentRequest);
 
+    /**
+     * 远程调用确认还款接口
+     * @param repaymentPlan
+     * @param repaymentRequest
+     */
+    void invokeConfirmRepayment(RepaymentPlan repaymentPlan, RepaymentRequest repaymentRequest);
+
 }

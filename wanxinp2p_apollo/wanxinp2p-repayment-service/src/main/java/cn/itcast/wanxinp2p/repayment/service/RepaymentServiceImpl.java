@@ -242,6 +242,14 @@ public class RepaymentServiceImpl implements RepaymentService {
         return rows > 0;
     }
 
+    @Override
+    public void invokeConfirmRepayment(RepaymentPlan repaymentPlan, RepaymentRequest repaymentRequest) {
+        RestResponse<String> repaymentResponse = depositoryAgentApiAgent.confirmRepayment(repaymentRequest);
+        if(!repaymentResponse.getResult().equals(DepositoryReturnCode.RETURN_CODE_00000.getCode())){
+            throw  new RuntimeException("还款失败");
+        }
+    }
+
     /**
      * 构造存管代理服务预处理请求数据
      *
