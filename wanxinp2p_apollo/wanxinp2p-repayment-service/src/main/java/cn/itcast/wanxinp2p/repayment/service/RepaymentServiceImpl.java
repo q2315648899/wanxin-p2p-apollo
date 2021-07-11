@@ -1,11 +1,13 @@
 package cn.itcast.wanxinp2p.repayment.service;
 
+import cn.itcast.wanxinp2p.api.depository.model.UserAutoPreTransactionRequest;
 import cn.itcast.wanxinp2p.api.repayment.model.ProjectWithTendersDTO;
 import cn.itcast.wanxinp2p.api.transaction.model.ProjectDTO;
 import cn.itcast.wanxinp2p.api.transaction.model.TenderDTO;
 import cn.itcast.wanxinp2p.common.domain.*;
 import cn.itcast.wanxinp2p.common.util.CodeNoUtil;
 import cn.itcast.wanxinp2p.common.util.DateUtil;
+import cn.itcast.wanxinp2p.repayment.agent.DepositoryAgentApiAgent;
 import cn.itcast.wanxinp2p.repayment.entity.ReceivablePlan;
 import cn.itcast.wanxinp2p.repayment.entity.RepaymentDetail;
 import cn.itcast.wanxinp2p.repayment.entity.RepaymentPlan;
@@ -38,6 +40,9 @@ public class RepaymentServiceImpl implements RepaymentService {
 
     @Autowired
     private RepaymentDetailMapper repaymentDetailMapper;
+
+    @Autowired
+    private DepositoryAgentApiAgent depositoryAgentApiAgent;
 
     @Transactional(rollbackFor = BusinessException.class)
     @Override
@@ -116,15 +121,59 @@ public class RepaymentServiceImpl implements RepaymentService {
     @Override
     public void executeRepayment(String date) {
         //查询到期的还款计划
-        List<RepaymentPlan> repaymentPlanList=selectDueRepayment(date);
+        List<RepaymentPlan> repaymentPlanList = selectDueRepayment(date);
 
         //生成还款明细(未同步)
         repaymentPlanList.forEach(repaymentPlan -> {
-            RepaymentDetail repaymentDetail=saveRepaymentDetail(repaymentPlan);
-            //未完待续...
+            RepaymentDetail repaymentDetail = saveRepaymentDetail(repaymentPlan);
+
+            //还款预处理
+            String preRequestNo = repaymentDetail.getRequestNo();
+            Boolean preRepaymentResult = preRepayment(repaymentPlan, preRequestNo);
+            if (preRepaymentResult) {
+                // 未完待续... ...
+                System.out.println("还款预处理成功");
+            }
         });
 
+    }
 
+    @Override
+    public Boolean preRepayment(RepaymentPlan repaymentPlan, String preRequestNo) {
+        //1. 构造请求数据
+        UserAutoPreTransactionRequest userAutoPreTransactionRequest = generateUserAutoPreTransactionRequest(repaymentPlan, preRequestNo);
+
+        //2. 请求存管代理服务
+        RestResponse<String> restResponse = depositoryAgentApiAgent.userAutoPreTransaction(userAutoPreTransactionRequest);
+
+        //3. 返回结果
+        return restResponse.getResult().equals(DepositoryReturnCode.RETURN_CODE_00000.getCode());
+    }
+
+    /**
+     * 构造存管代理服务预处理请求数据
+     *
+     * @param repaymentPlan
+     * @param preRequestNo
+     * @return
+     */
+    private UserAutoPreTransactionRequest generateUserAutoPreTransactionRequest(RepaymentPlan repaymentPlan, String preRequestNo) {
+        // 构造请求数据
+        UserAutoPreTransactionRequest userAutoPreTransactionRequest = new UserAutoPreTransactionRequest();
+        // 冻结金额
+        userAutoPreTransactionRequest.setAmount(repaymentPlan.getAmount());
+        // 预处理业务类型
+        userAutoPreTransactionRequest.setBizType(PreprocessBusinessTypeCode.REPAYMENT.getCode());
+        // 标的号
+        userAutoPreTransactionRequest.setProjectNo(repaymentPlan.getProjectNo());
+        // 请求流水号
+        userAutoPreTransactionRequest.setRequestNo(preRequestNo);
+        // 标的用户编码
+        userAutoPreTransactionRequest.setUserNo(repaymentPlan.getUserNo());
+        // 关联业务实体标识
+        userAutoPreTransactionRequest.setId(repaymentPlan.getId());
+        // 返回结果
+        return userAutoPreTransactionRequest;
     }
 
     //保存还款计划到数据库

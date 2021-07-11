@@ -34,5 +34,12 @@ public interface RepaymentService {
      */
     void executeRepayment(String date);
 
+    /**
+     * 还款预处理：冻结借款人应还金额
+     * @param repaymentPlan
+     * @param preRequestNo
+     * @return
+     */
+    Boolean preRepayment(RepaymentPlan repaymentPlan, String preRequestNo);
 
 }
