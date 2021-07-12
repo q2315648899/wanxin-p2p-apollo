@@ -33,6 +33,9 @@ public interface RepaymentService {
 
     /**
      * 执行用户还款
+     * @param date 当前时间
+     * @param shardingCount 分片总数
+     * @param shardingItem 分片项
      */
 //    void executeRepayment(String date);
     void executeRepayment(String date,int shardingCount,int shardingItem);
