@@ -100,9 +100,14 @@ public class RepaymentServiceImpl implements RepaymentService {
     }
 
     @Override
-    public List<RepaymentPlan> selectDueRepayment(String date) {
-        return planMapper.selectDueRepayment(date);
+    public List<RepaymentPlan> selectDueRepayment(String date,int shardingCount,int shardingItem) {
+        return planMapper.selectDueRepaymentList(date,shardingCount,shardingItem);
     }
+
+//    @Override
+//    public List<RepaymentPlan> selectDueRepayment(String date) {
+//        return planMapper.selectDueRepayment(date);
+//    }
 
     @Override
     public RepaymentDetail saveRepaymentDetail(RepaymentPlan repaymentPlan) {
@@ -130,14 +135,14 @@ public class RepaymentServiceImpl implements RepaymentService {
     }
 
     @Override
-    public void executeRepayment(String date) {
+    public void executeRepayment(String date,int shardingCount,int shardingItem) {
         //查询到期的还款计划
-        List<RepaymentPlan> repaymentPlanList = selectDueRepayment(date);
+        List<RepaymentPlan> repaymentPlanList=selectDueRepayment(date,shardingCount,shardingItem);
 
         //生成还款明细(未同步)
         repaymentPlanList.forEach(repaymentPlan -> {
             RepaymentDetail repaymentDetail = saveRepaymentDetail(repaymentPlan);
-
+            System.out.println("当前分片:" + shardingItem + "\n" + repaymentPlan);
             //还款预处理
             Boolean preRepaymentResult = preRepayment(repaymentPlan, repaymentDetail.getRequestNo());
             if (preRepaymentResult) {

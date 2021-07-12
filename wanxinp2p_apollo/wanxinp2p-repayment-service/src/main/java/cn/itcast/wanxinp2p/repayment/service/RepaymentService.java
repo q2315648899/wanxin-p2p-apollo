@@ -17,11 +17,12 @@ public interface RepaymentService {
     String startRepayment(ProjectWithTendersDTO projectWithTendersDTO);
 
     /**
-     * 查询到期还款计划
+     * 查询所有到期还款计划
      * @param date 格式为：yyyy-MM-dd
      * @return
      */
-    List<RepaymentPlan> selectDueRepayment(String date);
+//    List<RepaymentPlan> selectDueRepayment(String date);
+    List<RepaymentPlan> selectDueRepayment(String date, int shardingCount, int shardingItem);
 
     /**
      * 根据还款计划生成还款明细并保存
@@ -31,9 +32,10 @@ public interface RepaymentService {
     RepaymentDetail saveRepaymentDetail(RepaymentPlan repaymentPlan);
 
     /**
-     * 执行还款
+     * 执行用户还款
      */
-    void executeRepayment(String date);
+//    void executeRepayment(String date);
+    void executeRepayment(String date,int shardingCount,int shardingItem);
 
     /**
      * 还款预处理：冻结借款人应还金额
