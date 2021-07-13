@@ -63,4 +63,9 @@ public interface RepaymentService {
      */
     void invokeConfirmRepayment(RepaymentPlan repaymentPlan, RepaymentRequest repaymentRequest);
 
+    /**
+     * 查询还款人相关信息，并调用发送短信接口进行还款提醒
+     */
+    void sendRepaymentNotify(String date);
+
 }

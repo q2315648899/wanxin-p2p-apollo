@@ -1,5 +1,6 @@
 package cn.itcast.wanxinp2p.repayment.service;
 
+import cn.itcast.wanxinp2p.api.consumer.model.BorrowerDTO;
 import cn.itcast.wanxinp2p.api.depository.model.RepaymentDetailRequest;
 import cn.itcast.wanxinp2p.api.depository.model.RepaymentRequest;
 import cn.itcast.wanxinp2p.api.depository.model.UserAutoPreTransactionRequest;
@@ -253,6 +254,10 @@ public class RepaymentServiceImpl implements RepaymentService {
         if(!repaymentResponse.getResult().equals(DepositoryReturnCode.RETURN_CODE_00000.getCode())){
             throw  new RuntimeException("还款失败");
         }
+    }
+
+    @Override
+    public void sendRepaymentNotify(String date) {
     }
 
     /**
