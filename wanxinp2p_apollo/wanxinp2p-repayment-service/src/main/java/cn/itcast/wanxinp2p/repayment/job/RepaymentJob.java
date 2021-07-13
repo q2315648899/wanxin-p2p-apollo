@@ -19,5 +19,8 @@ public class RepaymentJob implements SimpleJob {
     public void execute(ShardingContext shardingContext) {
         //调用业务层执行还款任务
         repaymentService.executeRepayment(LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE), shardingContext.getShardingTotalCount(), shardingContext.getShardingItem());
+
+        //调用业务层执行还款短信提醒（提前一天）
+        repaymentService.sendRepaymentNotify(LocalDate.now().plusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE));
     }
 }
