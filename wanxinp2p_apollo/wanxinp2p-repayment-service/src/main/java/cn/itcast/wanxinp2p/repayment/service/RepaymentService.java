@@ -21,7 +21,7 @@ public interface RepaymentService {
      * @param date 格式为：yyyy-MM-dd
      * @return
      */
-//    List<RepaymentPlan> selectDueRepayment(String date);
+    List<RepaymentPlan> selectDueRepayment(String date);
     List<RepaymentPlan> selectDueRepayment(String date, int shardingCount, int shardingItem);
 
     /**
