@@ -7,4 +7,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * 用户充值信息 服务类
  */
 public interface RechargeRecordService extends IService<RechargeRecord> {
+
+    RechargeRecord getByRequestNo(String requestNo);
 }

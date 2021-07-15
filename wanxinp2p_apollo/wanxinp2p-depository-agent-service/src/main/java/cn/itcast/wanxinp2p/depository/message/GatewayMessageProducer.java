@@ -1,6 +1,7 @@
 package cn.itcast.wanxinp2p.depository.message;
 
 import cn.itcast.wanxinp2p.api.depository.model.DepositoryConsumerResponse;
+import cn.itcast.wanxinp2p.api.depository.model.DepositoryRechargeResponse;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.stereotype.Component;
 
@@ -17,5 +18,9 @@ public class GatewayMessageProducer {
 
     public void personalRegister(DepositoryConsumerResponse response) {
         rocketMQTemplate.convertAndSend("TP_GATEWAY_NOTIFY_AGENT:PERSONAL_REGISTER", response);
+    }
+
+    public void recharge(DepositoryRechargeResponse response) {
+        rocketMQTemplate.convertAndSend("TP_GATEWAY_NOTIFY_AGENT:RECHARGE", response);
     }
 }

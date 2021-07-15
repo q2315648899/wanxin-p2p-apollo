@@ -1,6 +1,7 @@
 package cn.itcast.wanxinp2p.consumer.message;
 
 import cn.itcast.wanxinp2p.api.depository.model.DepositoryConsumerResponse;
+import cn.itcast.wanxinp2p.api.depository.model.DepositoryRechargeResponse;
 import cn.itcast.wanxinp2p.consumer.service.ConsumerService;
 import com.alibaba.fastjson.JSON;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
@@ -52,6 +53,10 @@ public class GatewayNotifyConsumer {
                     System.out.println("从存管代理服务那里发来信息：" + body);
                     if (tag.equals("PERSONAL_REGISTER")) {
                         DepositoryConsumerResponse response = JSON.parseObject(body, DepositoryConsumerResponse.class);
+                        consumerService.modifyResult(response);
+                    }
+                    if (tag.equals("RECHARGE")) {
+                        DepositoryRechargeResponse response = JSON.parseObject(body, DepositoryRechargeResponse.class);
                         consumerService.modifyResult(response);
                     }
                     //if...

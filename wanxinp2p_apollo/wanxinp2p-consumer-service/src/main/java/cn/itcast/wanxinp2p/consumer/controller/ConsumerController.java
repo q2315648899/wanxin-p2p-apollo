@@ -124,11 +124,11 @@ public class ConsumerController implements ConsumerAPI {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "amount", value = "金额", required = true,
                     dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "callbackURL", value = "通知结果回调Url", required = true,
+            @ApiImplicitParam(name = "callbackUrl", value = "通知结果回调Url", required = true,
                     dataType = "String", paramType = "query")})
     @GetMapping("/my/recharge-records")
-    public RestResponse<GatewayRequest> createRechargeRecord(@RequestParam String amount, @RequestParam String callbackURL){
-        return consumerService.createRechargeRecord(amount, callbackURL);
+    public RestResponse<GatewayRequest> createRechargeRecord(@RequestParam String amount, @RequestParam String callbackUrl){
+        return consumerService.createRechargeRecord(amount, callbackUrl);
     }
 
     /**

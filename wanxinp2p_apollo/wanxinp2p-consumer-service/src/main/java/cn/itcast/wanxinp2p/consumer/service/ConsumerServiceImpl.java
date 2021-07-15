@@ -4,6 +4,7 @@ import cn.itcast.wanxinp2p.api.account.model.AccountDTO;
 import cn.itcast.wanxinp2p.api.account.model.AccountRegisterDTO;
 import cn.itcast.wanxinp2p.api.consumer.model.*;
 import cn.itcast.wanxinp2p.api.depository.model.DepositoryConsumerResponse;
+import cn.itcast.wanxinp2p.api.depository.model.DepositoryRechargeResponse;
 import cn.itcast.wanxinp2p.api.depository.model.GatewayRequest;
 import cn.itcast.wanxinp2p.common.domain.*;
 import cn.itcast.wanxinp2p.common.util.CodeNoUtil;
@@ -167,6 +168,18 @@ public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> i
                 .set(BankCard::getStatus, status)
                 .set(BankCard::getBankCode, response.getBankCode())
                 .set(BankCard::getBankName, response.getBankName()));
+    }
+
+    @Override
+    @Transactional
+    public Boolean modifyResult(DepositoryRechargeResponse response) {
+        //1.获取状态
+        int status = DepositoryReturnCode.RETURN_CODE_00000.getCode().equals(response.getRespCode()) ? StatusCode.STATUS_IN.getCode() : StatusCode.STATUS_FAIL.getCode();
+        //2.更新充值结果
+        RechargeRecord rechargeRecord = rechargeRecordService.getByRequestNo(response.getRequestNo());
+        return rechargeRecordService.update(Wrappers.<RechargeRecord>lambdaUpdate()
+                .eq(RechargeRecord::getId, rechargeRecord.getId())
+                .set(RechargeRecord::getCallbackStatus, 1));
     }
 
     @Override
