@@ -62,4 +62,12 @@ public interface ConsumerAPI {
      */
     RestResponse<BalanceDetailsDTO> getMyBalance();
 
+    /**
+     * 生成充值请求数据
+     * @param amount 充值金额
+     * @param callbackURL 回调地址
+     * @return
+     */
+    RestResponse<GatewayRequest> createRechargeRecord(String amount, String callbackURL);
+
 }

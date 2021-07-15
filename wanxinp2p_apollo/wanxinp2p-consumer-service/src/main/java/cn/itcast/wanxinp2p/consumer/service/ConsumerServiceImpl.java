@@ -11,8 +11,10 @@ import cn.itcast.wanxinp2p.common.util.IDCardUtil;
 import cn.itcast.wanxinp2p.consumer.agent.AccountApiAgent;
 import cn.itcast.wanxinp2p.consumer.agent.DepositoryAgentApiAgent;
 import cn.itcast.wanxinp2p.consumer.common.ConsumerErrorCode;
+import cn.itcast.wanxinp2p.consumer.common.SecurityUtil;
 import cn.itcast.wanxinp2p.consumer.entity.BankCard;
 import cn.itcast.wanxinp2p.consumer.entity.Consumer;
+import cn.itcast.wanxinp2p.consumer.entity.RechargeRecord;
 import cn.itcast.wanxinp2p.consumer.mapper.ConsumerMapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -25,6 +27,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @Service
@@ -39,6 +43,9 @@ public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> i
 
     @Autowired
     private DepositoryAgentApiAgent depositoryAgentApiAgent;
+
+    @Autowired
+    private RechargeRecordService rechargeRecordService;
 
     @Override
     public Integer checkMobile(String mobile) {
@@ -160,6 +167,30 @@ public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> i
                 .set(BankCard::getStatus, status)
                 .set(BankCard::getBankCode, response.getBankCode())
                 .set(BankCard::getBankName, response.getBankName()));
+    }
+
+    @Override
+    public RestResponse<GatewayRequest> createRechargeRecord(String amount, String callbackUrl) {
+        ConsumerDTO consumerDTO = getByMobile(SecurityUtil.getUser().getMobile());
+        //1.保存充值信息
+        RechargeRecord rechargeRecord = new RechargeRecord();
+        rechargeRecord.setAmount(new BigDecimal(amount));
+        rechargeRecord.setConsumerId(consumerDTO.getId());
+        rechargeRecord.setCreateDate(LocalDateTime.now());
+        // 开户时生成的用户标识
+        rechargeRecord.setUserNo(consumerDTO.getUserNo());
+        rechargeRecord.setRequestNo(CodeNoUtil.getNo(CodePrefixCode.CODE_REQUEST_PREFIX));
+        rechargeRecord.setCallbackStatus(0);
+        rechargeRecordService.save(rechargeRecord);
+        //2.生成用户充值请求信息
+        RechargeRequest rechargeRequest = new RechargeRequest();
+        rechargeRequest.setId(consumerDTO.getId());
+        rechargeRequest.setAmount(rechargeRecord.getAmount());
+        rechargeRequest.setCallbackUrl(callbackUrl);
+        rechargeRequest.setUserNo(rechargeRecord.getUserNo());
+        rechargeRequest.setRequestNo(rechargeRecord.getRequestNo());
+        //3.准备数据，发起远程调用，把数据发到存管代理服务
+        return depositoryAgentApiAgent.createRechargeRecord(rechargeRequest);
     }
 
     private Consumer getByRequestNo(String requestNo) {

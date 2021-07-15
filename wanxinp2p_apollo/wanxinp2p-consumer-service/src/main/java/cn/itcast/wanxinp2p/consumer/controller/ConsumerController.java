@@ -10,6 +10,7 @@ import cn.itcast.wanxinp2p.consumer.service.ConsumerService;
 import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
@@ -116,6 +117,18 @@ public class ConsumerController implements ConsumerAPI {
         ConsumerDTO consumerDTO = consumerService
                 .getByMobile(SecurityUtil.getUser().getMobile());
         return getBalanceFromDepository(consumerDTO.getUserNo());
+    }
+
+    @Override
+    @ApiOperation("生成充值请求数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "amount", value = "金额", required = true,
+                    dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "callbackURL", value = "通知结果回调Url", required = true,
+                    dataType = "String", paramType = "query")})
+    @GetMapping("/my/recharge-records")
+    public RestResponse<GatewayRequest> createRechargeRecord(@RequestParam String amount, @RequestParam String callbackURL){
+        return consumerService.createRechargeRecord(amount, callbackURL);
     }
 
     /**

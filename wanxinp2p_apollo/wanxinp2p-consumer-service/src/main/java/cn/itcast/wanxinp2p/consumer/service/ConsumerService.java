@@ -52,4 +52,12 @@ public interface ConsumerService extends IService<Consumer> {
      */
     BorrowerDTO getBorrower(Long id);
 
+    /**
+     * 生成充值请求数据
+     * @param amount
+     * @param callbackUrl
+     * @return
+     */
+    RestResponse<GatewayRequest> createRechargeRecord(String amount, String callbackUrl);
+
 }

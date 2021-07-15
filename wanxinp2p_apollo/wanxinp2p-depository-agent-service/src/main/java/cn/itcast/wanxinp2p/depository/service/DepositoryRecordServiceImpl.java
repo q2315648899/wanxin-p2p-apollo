@@ -1,6 +1,7 @@
 package cn.itcast.wanxinp2p.depository.service;
 
 import cn.itcast.wanxinp2p.api.consumer.model.ConsumerRequest;
+import cn.itcast.wanxinp2p.api.consumer.model.RechargeRequest;
 import cn.itcast.wanxinp2p.api.depository.model.*;
 import cn.itcast.wanxinp2p.api.transaction.model.ModifyProjectStatusDTO;
 import cn.itcast.wanxinp2p.api.transaction.model.ProjectDTO;
@@ -63,6 +64,23 @@ public class DepositoryRecordServiceImpl extends ServiceImpl<DepositoryRecordMap
                 .eq(DepositoryRecord::getRequestNo, requestNo)
                 .set(DepositoryRecord::getRequestStatus, requestsStatus)
                 .set(DepositoryRecord::getConfirmDate, LocalDateTime.now()));
+    }
+
+    @Override
+    public GatewayRequest createRechargeRecord(RechargeRequest rechargeRequest) {
+        //1.保存交易记录
+        saveDepositoryRecord(rechargeRequest);
+        //2.签名数据并返回
+        String reqData = JSON.toJSONString(rechargeRequest);
+        String sign = RSAUtil.sign(reqData, configService.getP2pPrivateKey(), "utf-8");
+        GatewayRequest gatewayRequest = new GatewayRequest();
+        gatewayRequest.setServiceName("RECHARGE");
+        gatewayRequest.setPlatformNo(configService.getP2pCode());
+        gatewayRequest.setReqData(EncryptUtil.encodeURL(EncryptUtil
+                .encodeUTF8StringBase64(reqData)));
+        gatewayRequest.setSignature(EncryptUtil.encodeURL(sign));
+        gatewayRequest.setDepositoryUrl(configService.getDepositoryUrl() + "/gateway");
+        return gatewayRequest;
     }
 
     @Override
@@ -289,6 +307,17 @@ public class DepositoryRecordServiceImpl extends ServiceImpl<DepositoryRecordMap
         depositoryRecord.setRequestType(DepositoryRequestTypeCode.CONSUMER_CREATE.getCode());
         depositoryRecord.setObjectType("Consumer");
         depositoryRecord.setObjectId(consumerRequest.getId());
+        depositoryRecord.setCreateDate(LocalDateTime.now());
+        depositoryRecord.setRequestStatus(StatusCode.STATUS_OUT.getCode());
+        save(depositoryRecord);
+    }
+
+    private void saveDepositoryRecord(RechargeRequest rechargeRequest) {
+        DepositoryRecord depositoryRecord = new DepositoryRecord();
+        depositoryRecord.setRequestNo(rechargeRequest.getRequestNo());
+        depositoryRecord.setRequestType(DepositoryRequestTypeCode.RECHARGE.getCode());
+        depositoryRecord.setObjectType("Consumer");
+        depositoryRecord.setObjectId(rechargeRequest.getId());
         depositoryRecord.setCreateDate(LocalDateTime.now());
         depositoryRecord.setRequestStatus(StatusCode.STATUS_OUT.getCode());
         save(depositoryRecord);

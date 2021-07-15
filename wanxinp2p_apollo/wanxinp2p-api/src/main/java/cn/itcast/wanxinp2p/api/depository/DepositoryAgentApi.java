@@ -1,6 +1,7 @@
 package cn.itcast.wanxinp2p.api.depository;
 
 import cn.itcast.wanxinp2p.api.consumer.model.ConsumerRequest;
+import cn.itcast.wanxinp2p.api.consumer.model.RechargeRequest;
 import cn.itcast.wanxinp2p.api.depository.model.GatewayRequest;
 import cn.itcast.wanxinp2p.api.depository.model.LoanRequest;
 import cn.itcast.wanxinp2p.api.depository.model.RepaymentRequest;
@@ -55,5 +56,12 @@ public interface DepositoryAgentApi {
      * @return
      */
     RestResponse<String> confirmRepayment(RepaymentRequest repaymentRequest);
+
+    /**
+     * 用户充值
+     * @param rechargeRequest
+     * @return
+     */
+    RestResponse<GatewayRequest> createRechargeRecord(RechargeRequest rechargeRequest);
 
 }

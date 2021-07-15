@@ -1,6 +1,7 @@
 package cn.itcast.wanxinp2p.depository.controller;
 
 import cn.itcast.wanxinp2p.api.consumer.model.ConsumerRequest;
+import cn.itcast.wanxinp2p.api.consumer.model.RechargeRequest;
 import cn.itcast.wanxinp2p.api.depository.DepositoryAgentApi;
 import cn.itcast.wanxinp2p.api.depository.model.*;
 import cn.itcast.wanxinp2p.api.transaction.model.ModifyProjectStatusDTO;
@@ -89,6 +90,15 @@ public class DepositoryAgentController implements DepositoryAgentApi {
     public RestResponse<String> confirmRepayment(@RequestBody RepaymentRequest repaymentRequest) {
         DepositoryResponseDTO<DepositoryBaseResponse> depositoryResponse = depositoryRecordService.confirmRepayment(repaymentRequest);
         return getRestResponse(depositoryResponse);
+    }
+
+    @Override
+    @ApiOperation("生成充值请求数据")
+    @ApiImplicitParam(name = "rechargeRequest", value = "充值信息", required = true,
+            dataType = "RechargeRequest", paramType = "body")
+    @PostMapping("/l/recharges")
+    public RestResponse<GatewayRequest> createRechargeRecord(@RequestBody RechargeRequest rechargeRequest){
+        return RestResponse.success(depositoryRecordService.createRechargeRecord(rechargeRequest));
     }
 
     /**
