@@ -6,6 +6,7 @@ import cn.itcast.wanxinp2p.api.consumer.model.*;
 import cn.itcast.wanxinp2p.api.depository.model.DepositoryConsumerResponse;
 import cn.itcast.wanxinp2p.api.depository.model.DepositoryRechargeResponse;
 import cn.itcast.wanxinp2p.api.depository.model.GatewayRequest;
+import cn.itcast.wanxinp2p.api.depository.model.WithdrawRequest;
 import cn.itcast.wanxinp2p.common.domain.*;
 import cn.itcast.wanxinp2p.common.util.CodeNoUtil;
 import cn.itcast.wanxinp2p.common.util.IDCardUtil;
@@ -16,6 +17,7 @@ import cn.itcast.wanxinp2p.consumer.common.SecurityUtil;
 import cn.itcast.wanxinp2p.consumer.entity.BankCard;
 import cn.itcast.wanxinp2p.consumer.entity.Consumer;
 import cn.itcast.wanxinp2p.consumer.entity.RechargeRecord;
+import cn.itcast.wanxinp2p.consumer.entity.WithdrawRecord;
 import cn.itcast.wanxinp2p.consumer.mapper.ConsumerMapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -47,6 +49,12 @@ public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> i
 
     @Autowired
     private RechargeRecordService rechargeRecordService;
+
+    @Autowired
+    private WithdrawRecordService withdrawRecordService;
+
+    @Autowired
+    private ConfigService configService;
 
     @Override
     public Integer checkMobile(String mobile) {
@@ -183,6 +191,7 @@ public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> i
     }
 
     @Override
+    @Transactional
     public RestResponse<GatewayRequest> createRechargeRecord(String amount, String callbackUrl) {
         ConsumerDTO consumerDTO = getByMobile(SecurityUtil.getUser().getMobile());
         //1.保存充值信息
@@ -194,7 +203,11 @@ public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> i
         rechargeRecord.setUserNo(consumerDTO.getUserNo());
         rechargeRecord.setRequestNo(CodeNoUtil.getNo(CodePrefixCode.CODE_REQUEST_PREFIX));
         rechargeRecord.setCallbackStatus(0);
-        rechargeRecordService.save(rechargeRecord);
+        RechargeRecord existRechargeRecord = rechargeRecordService.getByConsumerId(rechargeRecord.getConsumerId());
+        if (existRechargeRecord != null) {
+            rechargeRecord.setId(existRechargeRecord.getId());
+        }
+        rechargeRecordService.saveOrUpdate(rechargeRecord);
         //2.生成用户充值请求信息
         RechargeRequest rechargeRequest = new RechargeRequest();
         rechargeRequest.setId(consumerDTO.getId());
@@ -204,6 +217,43 @@ public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> i
         rechargeRequest.setRequestNo(rechargeRecord.getRequestNo());
         //3.准备数据，发起远程调用，把数据发到存管代理服务
         return depositoryAgentApiAgent.createRechargeRecord(rechargeRequest);
+    }
+
+    @Override
+    @Transactional
+    public RestResponse<GatewayRequest> createWithdrawRecord(String amount, String callbackUrl) {
+        ConsumerDTO consumerDTO = getByMobile(SecurityUtil.getUser().getMobile());
+        //1.保存提现信息
+        WithdrawRecord withdrawRecord = new WithdrawRecord();
+        withdrawRecord.setAmount(new BigDecimal(amount));
+        withdrawRecord.setConsumerId(consumerDTO.getId());
+        withdrawRecord.setCreateDate(LocalDateTime.now());
+        withdrawRecord.setCommission(new BigDecimal(amount).multiply(configService.getCommission()));
+        // 开户时生成的用户标识
+        withdrawRecord.setUserNo(consumerDTO.getUserNo());
+        withdrawRecord.setRequestNo(CodeNoUtil.getNo(CodePrefixCode.CODE_REQUEST_PREFIX));
+        withdrawRecord.setCallbackStatus(0);
+        WithdrawRecord existWithdrawRecord = withdrawRecordService.getByConsumerId(withdrawRecord.getConsumerId());
+        if (existWithdrawRecord != null) {
+            withdrawRecord.setId(existWithdrawRecord.getId());
+        }
+        withdrawRecordService.saveOrUpdate(withdrawRecord);
+
+        //2.生成用户提现请求信息
+        //查找当前用户绑定的银行卡信息
+        BankCardDTO bankCardDTO = bankCardService.getByConsumerId(consumerDTO.getId());
+        WithdrawRequest withdrawRequest = new WithdrawRequest();
+        withdrawRequest.setId(consumerDTO.getId());
+        withdrawRequest.setAmount(withdrawRecord.getAmount());
+        withdrawRequest.setCallbackURL(callbackUrl);
+        withdrawRequest.setUserNo(withdrawRecord.getUserNo());
+        withdrawRequest.setRequestNo(withdrawRecord.getRequestNo());
+        withdrawRequest.setCommission(withdrawRecord.getCommission());
+        withdrawRequest.setCardNumber(bankCardDTO.getCardNumber());
+        withdrawRequest.setMobile(bankCardDTO.getMobile());
+
+        //3.准备数据，发起远程调用，把数据发到存管代理服务
+        return depositoryAgentApiAgent.createWithdrawRecord(withdrawRequest);
     }
 
     private Consumer getByRequestNo(String requestNo) {

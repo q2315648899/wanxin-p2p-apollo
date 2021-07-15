@@ -68,4 +68,12 @@ public interface ConsumerService extends IService<Consumer> {
      */
     RestResponse<GatewayRequest> createRechargeRecord(String amount, String callbackUrl);
 
+    /**
+     * 生成提现请求数据
+     * @param amount
+     * @param callbackUrl
+     * @return
+     */
+    RestResponse<GatewayRequest> createWithdrawRecord(String amount, String callbackUrl);
+
 }

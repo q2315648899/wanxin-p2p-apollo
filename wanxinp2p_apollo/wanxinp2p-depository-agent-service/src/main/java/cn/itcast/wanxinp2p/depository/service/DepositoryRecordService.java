@@ -65,4 +65,11 @@ public interface DepositoryRecordService extends IService<DepositoryRecord> {
      * @return
      */
     GatewayRequest createRechargeRecord(RechargeRequest rechargeRequest);
+
+    /**
+     * 生成提现请求数据
+     * @param withdrawRequest
+     * @return
+     */
+    GatewayRequest createWithdrawRecord(WithdrawRequest withdrawRequest);
 }

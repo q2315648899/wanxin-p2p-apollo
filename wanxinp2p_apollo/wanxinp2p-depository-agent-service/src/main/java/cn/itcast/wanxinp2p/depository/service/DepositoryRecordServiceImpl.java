@@ -84,6 +84,23 @@ public class DepositoryRecordServiceImpl extends ServiceImpl<DepositoryRecordMap
     }
 
     @Override
+    public GatewayRequest createWithdrawRecord(WithdrawRequest withdrawRequest) {
+        //1.保存交易记录
+        saveDepositoryRecord(withdrawRequest);
+        //2.签名数据并返回
+        String reqData = JSON.toJSONString(withdrawRequest);
+        String sign = RSAUtil.sign(reqData, configService.getP2pPrivateKey(), "utf-8");
+        GatewayRequest gatewayRequest = new GatewayRequest();
+        gatewayRequest.setServiceName("WITHDRAW");
+        gatewayRequest.setPlatformNo(configService.getP2pCode());
+        gatewayRequest.setReqData(EncryptUtil.encodeURL(EncryptUtil
+                .encodeUTF8StringBase64(reqData)));
+        gatewayRequest.setSignature(EncryptUtil.encodeURL(sign));
+        gatewayRequest.setDepositoryUrl(configService.getDepositoryUrl() + "/gateway");
+        return gatewayRequest;
+    }
+
+    @Override
     public DepositoryResponseDTO<DepositoryBaseResponse> createProject(ProjectDTO projectDTO) {
 
         //1. 保存交易记录
@@ -318,6 +335,17 @@ public class DepositoryRecordServiceImpl extends ServiceImpl<DepositoryRecordMap
         depositoryRecord.setRequestType(DepositoryRequestTypeCode.RECHARGE.getCode());
         depositoryRecord.setObjectType("Consumer");
         depositoryRecord.setObjectId(rechargeRequest.getId());
+        depositoryRecord.setCreateDate(LocalDateTime.now());
+        depositoryRecord.setRequestStatus(StatusCode.STATUS_OUT.getCode());
+        save(depositoryRecord);
+    }
+
+    private void saveDepositoryRecord(WithdrawRequest withdrawRequest) {
+        DepositoryRecord depositoryRecord = new DepositoryRecord();
+        depositoryRecord.setRequestNo(withdrawRequest.getRequestNo());
+        depositoryRecord.setRequestType(DepositoryRequestTypeCode.WITHDRAW.getCode());
+        depositoryRecord.setObjectType("Consumer");
+        depositoryRecord.setObjectId(withdrawRequest.getId());
         depositoryRecord.setCreateDate(LocalDateTime.now());
         depositoryRecord.setRequestStatus(StatusCode.STATUS_OUT.getCode());
         save(depositoryRecord);

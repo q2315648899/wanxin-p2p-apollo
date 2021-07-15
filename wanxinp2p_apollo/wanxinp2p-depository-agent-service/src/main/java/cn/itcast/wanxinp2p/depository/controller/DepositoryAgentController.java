@@ -101,6 +101,16 @@ public class DepositoryAgentController implements DepositoryAgentApi {
         return RestResponse.success(depositoryRecordService.createRechargeRecord(rechargeRequest));
     }
 
+    @Override
+    @ApiOperation("生成提现请求数据")
+    @ApiImplicitParam(name = "withdrawRequest", value = "提现信息", required = true,
+            dataType = "WithdrawRequest", paramType = "body")
+    @PostMapping("/l/withdraw")
+    public RestResponse<GatewayRequest> createWithdrawRecord(
+            @RequestBody WithdrawRequest withdrawRequest){
+        return RestResponse.success(depositoryRecordService.createWithdrawRecord(withdrawRequest));
+    }
+
     /**
      * 统一处理响应信息
      * @param depositoryResponse

@@ -131,6 +131,20 @@ public class ConsumerController implements ConsumerAPI {
         return consumerService.createRechargeRecord(amount, callbackUrl);
     }
 
+    @Override
+    @ApiOperation("生成用户提现数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "amount", value = "金额", required = true,
+                    dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "callbackUrl", value = "通知结果回调Url",
+                    required = true,
+                    dataType = "String", paramType = "query")})
+    @GetMapping("/my/withdraw-records")
+    public RestResponse<GatewayRequest> createWithdrawRecord(@RequestParam String amount, @RequestParam String callbackUrl){
+        return consumerService.createWithdrawRecord(amount, callbackUrl);
+    }
+
+
     /**
      * 远程调用存管系统获取用户余额信息
      *

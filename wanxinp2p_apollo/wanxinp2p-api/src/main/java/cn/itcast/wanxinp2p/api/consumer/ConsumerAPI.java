@@ -70,4 +70,12 @@ public interface ConsumerAPI {
      */
     RestResponse<GatewayRequest> createRechargeRecord(String amount, String callbackUrl);
 
+    /**
+     * 生成用户提现数据
+     * @param amount 提现金额
+     * @param callbackUrl 回调地址
+     * @return
+     */
+    RestResponse<GatewayRequest> createWithdrawRecord(String amount, String callbackUrl);
+
 }

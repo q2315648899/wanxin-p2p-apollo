@@ -2,10 +2,7 @@ package cn.itcast.wanxinp2p.api.depository;
 
 import cn.itcast.wanxinp2p.api.consumer.model.ConsumerRequest;
 import cn.itcast.wanxinp2p.api.consumer.model.RechargeRequest;
-import cn.itcast.wanxinp2p.api.depository.model.GatewayRequest;
-import cn.itcast.wanxinp2p.api.depository.model.LoanRequest;
-import cn.itcast.wanxinp2p.api.depository.model.RepaymentRequest;
-import cn.itcast.wanxinp2p.api.depository.model.UserAutoPreTransactionRequest;
+import cn.itcast.wanxinp2p.api.depository.model.*;
 import cn.itcast.wanxinp2p.api.transaction.model.ModifyProjectStatusDTO;
 import cn.itcast.wanxinp2p.api.transaction.model.ProjectDTO;
 import cn.itcast.wanxinp2p.common.domain.RestResponse;
@@ -63,5 +60,12 @@ public interface DepositoryAgentApi {
      * @return
      */
     RestResponse<GatewayRequest> createRechargeRecord(RechargeRequest rechargeRequest);
+
+    /**
+     * 用户提现
+     * @param withdrawRequest
+     * @return
+     */
+    RestResponse<GatewayRequest> createWithdrawRecord(WithdrawRequest withdrawRequest);
 
 }
