@@ -3,10 +3,7 @@ package cn.itcast.wanxinp2p.consumer.service;
 import cn.itcast.wanxinp2p.api.account.model.AccountDTO;
 import cn.itcast.wanxinp2p.api.account.model.AccountRegisterDTO;
 import cn.itcast.wanxinp2p.api.consumer.model.*;
-import cn.itcast.wanxinp2p.api.depository.model.DepositoryConsumerResponse;
-import cn.itcast.wanxinp2p.api.depository.model.DepositoryRechargeResponse;
-import cn.itcast.wanxinp2p.api.depository.model.GatewayRequest;
-import cn.itcast.wanxinp2p.api.depository.model.WithdrawRequest;
+import cn.itcast.wanxinp2p.api.depository.model.*;
 import cn.itcast.wanxinp2p.common.domain.*;
 import cn.itcast.wanxinp2p.common.util.CodeNoUtil;
 import cn.itcast.wanxinp2p.common.util.IDCardUtil;
@@ -188,6 +185,18 @@ public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> i
         return rechargeRecordService.update(Wrappers.<RechargeRecord>lambdaUpdate()
                 .eq(RechargeRecord::getId, rechargeRecord.getId())
                 .set(RechargeRecord::getCallbackStatus, 1));
+    }
+
+    @Override
+    @Transactional
+    public Boolean modifyResult(DepositoryWithdrawResponse response) {
+        //1.获取状态
+        int status = DepositoryReturnCode.RETURN_CODE_00000.getCode().equals(response.getRespCode()) ? StatusCode.STATUS_IN.getCode() : StatusCode.STATUS_FAIL.getCode();
+        //2.更新提现结果
+        WithdrawRecord withdrawRecord = withdrawRecordService.getByRequestNo(response.getRequestNo());
+        return withdrawRecordService.update(Wrappers.<WithdrawRecord>lambdaUpdate()
+                .eq(WithdrawRecord::getId, withdrawRecord.getId())
+                .set(WithdrawRecord::getCallbackStatus, 1));
     }
 
     @Override

@@ -6,6 +6,7 @@ import cn.itcast.wanxinp2p.api.consumer.model.ConsumerRegisterDTO;
 import cn.itcast.wanxinp2p.api.consumer.model.ConsumerRequest;
 import cn.itcast.wanxinp2p.api.depository.model.DepositoryConsumerResponse;
 import cn.itcast.wanxinp2p.api.depository.model.DepositoryRechargeResponse;
+import cn.itcast.wanxinp2p.api.depository.model.DepositoryWithdrawResponse;
 import cn.itcast.wanxinp2p.api.depository.model.GatewayRequest;
 import cn.itcast.wanxinp2p.common.domain.RestResponse;
 import cn.itcast.wanxinp2p.consumer.entity.Consumer;
@@ -45,6 +46,13 @@ public interface ConsumerService extends IService<Consumer> {
      * @return
      */
     Boolean modifyResult(DepositoryRechargeResponse response);
+
+    /**
+     * 更新提现结果
+     * @param response
+     * @return
+     */
+    Boolean modifyResult(DepositoryWithdrawResponse response);
 
     /**
      * 通过手机号获取当前用户信息

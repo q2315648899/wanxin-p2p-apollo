@@ -2,6 +2,7 @@ package cn.itcast.wanxinp2p.consumer.message;
 
 import cn.itcast.wanxinp2p.api.depository.model.DepositoryConsumerResponse;
 import cn.itcast.wanxinp2p.api.depository.model.DepositoryRechargeResponse;
+import cn.itcast.wanxinp2p.api.depository.model.DepositoryWithdrawResponse;
 import cn.itcast.wanxinp2p.consumer.service.ConsumerService;
 import com.alibaba.fastjson.JSON;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
@@ -57,6 +58,10 @@ public class GatewayNotifyConsumer {
                     }
                     if (tag.equals("RECHARGE")) {
                         DepositoryRechargeResponse response = JSON.parseObject(body, DepositoryRechargeResponse.class);
+                        consumerService.modifyResult(response);
+                    }
+                    if (tag.equals("WITHDRAW")) {
+                        DepositoryWithdrawResponse response = JSON.parseObject(body, DepositoryWithdrawResponse.class);
                         consumerService.modifyResult(response);
                     }
                     //if...

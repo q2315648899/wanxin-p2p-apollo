@@ -2,6 +2,7 @@ package cn.itcast.wanxinp2p.depository.controller;
 
 import cn.itcast.wanxinp2p.api.depository.model.DepositoryConsumerResponse;
 import cn.itcast.wanxinp2p.api.depository.model.DepositoryRechargeResponse;
+import cn.itcast.wanxinp2p.api.depository.model.DepositoryWithdrawResponse;
 import cn.itcast.wanxinp2p.common.util.EncryptUtil;
 import cn.itcast.wanxinp2p.depository.message.GatewayMessageProducer;
 import cn.itcast.wanxinp2p.depository.service.DepositoryRecordService;
@@ -76,6 +77,34 @@ public class DepositoryNotifyController {
 
         //2.发送消息给用户中心
         gatewayMessageProducer.recharge(depositoryRechargeResponse);
+
+        //3.给银行存管系统返回结果
+        return "OK";
+    }
+
+    @ApiOperation("接受银行存管系统提现返回结果")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "serviceName", value = "请求的存管接口名",
+                    required = true, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "platformNo", value = "平台编号，平台与存管系统签约时获取",
+                    required = true, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "signature", value = "对reqData参数的签名",
+                    required = true, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "reqData", value = "业务数据报文，json格式",
+                    required = true, dataType = "String", paramType = "query"),})
+    @RequestMapping(value = "/gateway", method = RequestMethod.GET, params =
+            "serviceName=WITHDRAW")
+    public String receiveDepositoryWithdrawResult(
+            @RequestParam("serviceName") String serviceName,
+            @RequestParam("platformNo") String platformNo,
+            @RequestParam("signature") String signature,
+            @RequestParam("reqData") String reqData){
+        //1.更新数据
+        DepositoryWithdrawResponse depositoryWithdrawResponse = JSON.parseObject(EncryptUtil.decodeUTF8StringBase64(reqData), DepositoryWithdrawResponse.class);
+        depositoryRecordService.modifyRequestStatus(depositoryWithdrawResponse.getRequestNo(), depositoryWithdrawResponse.getStatus());
+
+        //2.发送消息给用户中心
+        gatewayMessageProducer.withdraw(depositoryWithdrawResponse);
 
         //3.给银行存管系统返回结果
         return "OK";
