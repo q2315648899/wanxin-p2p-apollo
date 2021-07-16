@@ -3,6 +3,10 @@ package cn.itcast.wanxinp2p.api.consumer;
 import cn.itcast.wanxinp2p.api.consumer.model.*;
 import cn.itcast.wanxinp2p.api.depository.model.GatewayRequest;
 import cn.itcast.wanxinp2p.common.domain.RestResponse;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.Map;
 
 /**
  * 用户中心接口API
@@ -77,5 +81,13 @@ public interface ConsumerAPI {
      * @return
      */
     RestResponse<GatewayRequest> createWithdrawRecord(String amount, String callbackUrl);
+
+    /**
+     * 提交身份证图片给百度AI进行识别
+     * @param file 被上传的文件
+     * @param flag 身份证正反面 取值front 或 back
+     * @return Map集合 识别成功后把身份证上的姓名和身份证号存到map中返回
+     */
+    RestResponse<Map<String, String>> imageRecognition(MultipartFile file, String flag) throws IOException;
 
 }

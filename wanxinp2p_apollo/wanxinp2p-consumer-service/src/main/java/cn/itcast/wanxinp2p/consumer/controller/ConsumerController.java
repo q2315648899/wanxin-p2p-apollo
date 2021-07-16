@@ -19,8 +19,10 @@ import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -142,6 +144,13 @@ public class ConsumerController implements ConsumerAPI {
     @GetMapping("/my/withdraw-records")
     public RestResponse<GatewayRequest> createWithdrawRecord(@RequestParam String amount, @RequestParam String callbackUrl){
         return consumerService.createWithdrawRecord(amount, callbackUrl);
+    }
+
+    @Override
+    @ApiOperation("提交身份证图片给百度AI进行识别")
+    @PostMapping("/my/imageRecognition")
+    public RestResponse<Map<String,String>> imageRecognition(@RequestParam("file") MultipartFile file, String flag) throws IOException {
+        return consumerService.imageRecognition(file, flag);
     }
 
 

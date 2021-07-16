@@ -16,19 +16,25 @@ import cn.itcast.wanxinp2p.consumer.entity.Consumer;
 import cn.itcast.wanxinp2p.consumer.entity.RechargeRecord;
 import cn.itcast.wanxinp2p.consumer.entity.WithdrawRecord;
 import cn.itcast.wanxinp2p.consumer.mapper.ConsumerMapper;
+import com.baidu.aip.ocr.AipOcr;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.hmily.annotation.Hmily;
+import org.json.JSONObject;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 @Service
@@ -52,6 +58,9 @@ public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> i
 
     @Autowired
     private ConfigService configService;
+
+    @Autowired
+    private AipOcr aipOcr;
 
     @Override
     public Integer checkMobile(String mobile) {
@@ -263,6 +272,40 @@ public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> i
 
         //3.准备数据，发起远程调用，把数据发到存管代理服务
         return depositoryAgentApiAgent.createWithdrawRecord(withdrawRequest);
+    }
+
+    @Override
+    public RestResponse<Map<String, String>> imageRecognition(MultipartFile file, String flag) throws IOException {
+        // 传入可选参数调用接口
+        HashMap<String, String> options = new HashMap<String, String>();
+        options.put("detect_direction", "true");
+        options.put("detect_risk", "false");
+
+        String idCardSide = flag;
+
+        // 参数为本地图片二进制数组
+        //文件字节
+        byte[] bytes = file.getBytes();
+        JSONObject res = aipOcr.idcard(bytes, idCardSide, options);
+        System.out.println(res.toString(2));
+        JSONObject words_result = res.getJSONObject("words_result");
+        Iterator iterator = words_result.keys();
+        Map<String, String> map = new HashMap<>();
+        while (iterator.hasNext()) {
+            String key = iterator.next().toString();
+            if ("姓名".equals(key)) {
+                JSONObject jsonObject = words_result.getJSONObject(key);
+
+                map.put("idName", jsonObject.getString("words"));
+            }
+            if ("公民身份号码".equals(key)) {
+                JSONObject jsonObject = words_result.getJSONObject(key);
+
+                map.put("idCard", jsonObject.getString("words"));
+            }
+        }
+        System.out.println("map为：" + map);
+        return RestResponse.success(map);
     }
 
     private Consumer getByRequestNo(String requestNo) {
