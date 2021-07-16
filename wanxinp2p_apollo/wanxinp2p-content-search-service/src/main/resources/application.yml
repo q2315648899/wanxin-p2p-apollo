@@ -5,7 +5,7 @@ apollo:
     enabled: true
     #    eagerLoad:
     #      enabled: true
-    namespaces: application,micro_service.spring-boot-http,micro_service.spring-eureka,micro_service.spring-cloud-feign,micro_service.spring-ribbon,micro_service.spring-boot-es
+    namespaces: application,micro_service.spring-boot-http,micro_service.spring-eureka,micro_service.spring-cloud-feign,micro_service.spring-ribbon,micro_service.spring-boot-es,micro_service.spring-zipkin
 
 spring:
   application:
