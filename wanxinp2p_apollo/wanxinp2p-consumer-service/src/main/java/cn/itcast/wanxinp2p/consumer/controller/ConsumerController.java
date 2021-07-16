@@ -8,11 +8,13 @@ import cn.itcast.wanxinp2p.common.util.EncryptUtil;
 import cn.itcast.wanxinp2p.consumer.common.SecurityUtil;
 import cn.itcast.wanxinp2p.consumer.service.ConsumerService;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -31,6 +33,15 @@ public class ConsumerController implements ConsumerAPI {
 
     @Value("${depository.url}")
     private String depositoryURL;
+
+    @Value("${file.url}")
+    private String fileURL;
+
+    @Value("${my.file.origin}")
+    private String origin;
+
+    @Value("${my.file.bucket}")
+    private String bucket;
 
     private OkHttpClient okHttpClient = new OkHttpClient().newBuilder().build();
 
@@ -129,7 +140,7 @@ public class ConsumerController implements ConsumerAPI {
             @ApiImplicitParam(name = "callbackUrl", value = "通知结果回调Url", required = true,
                     dataType = "String", paramType = "query")})
     @GetMapping("/my/recharge-records")
-    public RestResponse<GatewayRequest> createRechargeRecord(@RequestParam String amount, @RequestParam String callbackUrl){
+    public RestResponse<GatewayRequest> createRechargeRecord(@RequestParam String amount, @RequestParam String callbackUrl) {
         return consumerService.createRechargeRecord(amount, callbackUrl);
     }
 
@@ -142,17 +153,43 @@ public class ConsumerController implements ConsumerAPI {
                     required = true,
                     dataType = "String", paramType = "query")})
     @GetMapping("/my/withdraw-records")
-    public RestResponse<GatewayRequest> createWithdrawRecord(@RequestParam String amount, @RequestParam String callbackUrl){
+    public RestResponse<GatewayRequest> createWithdrawRecord(@RequestParam String amount, @RequestParam String callbackUrl) {
         return consumerService.createWithdrawRecord(amount, callbackUrl);
     }
 
     @Override
     @ApiOperation("提交身份证图片给百度AI进行识别")
     @PostMapping("/my/imageRecognition")
-    public RestResponse<Map<String,String>> imageRecognition(@RequestParam("file") MultipartFile file, String flag) throws IOException {
+    public RestResponse<Map<String, String>> imageRecognition(@RequestParam("file") MultipartFile file, String flag) throws IOException {
         return consumerService.imageRecognition(file, flag);
     }
 
+    @Override
+    @ApiOperation("申请获得上传凭证")
+    @GetMapping("/my/applyUploadCertificate")
+    public RestResponse<String> applyUploadCertificate() {
+        String url = fileURL + "/generatetoken/?origin=" + origin;
+        MediaType mediaType = MediaType.get("application/json; charset=utf-8");
+        ApplyCertificateRequest applyCertificateRequest = new ApplyCertificateRequest();
+        applyCertificateRequest.setTokenType("1");//1表示获得上传凭证
+        applyCertificateRequest.setScope(bucket);
+        applyCertificateRequest.setDeadline(System.currentTimeMillis() / 1000 + 3600);//上传开始时间 + 3600s
+        okhttp3.RequestBody body = okhttp3.RequestBody.create(mediaType, JSON.toJSONString(applyCertificateRequest));
+        RestResponse<String> restResponse;
+        Request request = new Request.Builder().url(url).post(body).build();
+        try (Response response = okHttpClient.newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                String responseBody = response.body().string();
+                restResponse = JSON.parseObject(responseBody,
+                        new TypeReference<RestResponse<String>>() {
+                        });
+                return restResponse;
+            }
+        } catch (IOException e) {
+            log.warn("调用文件服务{}获取凭证失败 ", url, e);
+        }
+        return RestResponse.validfail("获取凭证失败");
+    }
 
     /**
      * 远程调用存管系统获取用户余额信息

@@ -90,4 +90,10 @@ public interface ConsumerAPI {
      */
     RestResponse<Map<String, String>> imageRecognition(MultipartFile file, String flag) throws IOException;
 
+    /**
+     * 申请获得上传凭证
+     * @return
+     */
+    RestResponse<String> applyUploadCertificate();
+
 }
