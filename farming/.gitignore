@@ -18,6 +18,7 @@ hs_err_pid*
 .project
 target
 .settings
+logs/
 
 # Idea
 .idea
