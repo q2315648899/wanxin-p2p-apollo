@@ -223,4 +223,15 @@ public class ConsumerController implements ConsumerAPI {
         return RestResponse.success(EncryptUtil.decodeUTF8StringBase64(jsonToken));
     }
 
+    @Override
+    @ApiOperation(value="保存用户详细信息", notes="主要存储身份证文件标识")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "consumerDetailsDTO", value = "用户详细信息",
+                    dataType = "ConsumerDetailsDTO", paramType = "body")})
+    @PostMapping("/my/saveConsumerDetails")
+    public RestResponse<String> saveConsumerDetails(@RequestBody ConsumerDetailsDTO consumerDetailsDTO){
+        consumerService.saveConsumerDetails(consumerDetailsDTO);
+        return RestResponse.success("保存成功");
+    }
+
 }

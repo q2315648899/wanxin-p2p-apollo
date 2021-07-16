@@ -11,10 +11,7 @@ import cn.itcast.wanxinp2p.consumer.agent.AccountApiAgent;
 import cn.itcast.wanxinp2p.consumer.agent.DepositoryAgentApiAgent;
 import cn.itcast.wanxinp2p.consumer.common.ConsumerErrorCode;
 import cn.itcast.wanxinp2p.consumer.common.SecurityUtil;
-import cn.itcast.wanxinp2p.consumer.entity.BankCard;
-import cn.itcast.wanxinp2p.consumer.entity.Consumer;
-import cn.itcast.wanxinp2p.consumer.entity.RechargeRecord;
-import cn.itcast.wanxinp2p.consumer.entity.WithdrawRecord;
+import cn.itcast.wanxinp2p.consumer.entity.*;
 import cn.itcast.wanxinp2p.consumer.mapper.ConsumerMapper;
 import com.baidu.aip.ocr.AipOcr;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -61,6 +58,9 @@ public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> i
 
     @Autowired
     private AipOcr aipOcr;
+
+    @Autowired
+    private ConsumerDetailsService consumerDetailsService;
 
     @Override
     public Integer checkMobile(String mobile) {
@@ -308,6 +308,23 @@ public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> i
         return RestResponse.success(map);
     }
 
+    @Override
+    public RestResponse<String> saveConsumerDetails(ConsumerDetailsDTO consumerDetailsDTO) {
+        //1.判断提交的身份证信息是否和之前开户信息一致
+        //查询用户的开户信息是否存在
+        Consumer consumer = getOne(new QueryWrapper<Consumer>().lambda()
+                .eq(Consumer::getIdNumber, consumerDetailsDTO.getIdNumber())
+                .eq(Consumer::getFullname, consumerDetailsDTO.getFullname()));
+        if (consumer == null) {
+            throw new BusinessException(ConsumerErrorCode.E_140108);
+        }
+
+        ConsumerDetails consumerDetails = convertConsumerDetailsDTOToEntity(consumerDetailsDTO);
+        consumerDetails.setConsumerId(consumer.getId());
+        consumerDetailsService.save(consumerDetails);
+        return RestResponse.success();
+    }
+
     private Consumer getByRequestNo(String requestNo) {
         return getOne(Wrappers.<Consumer>lambdaQuery().eq(Consumer::getRequestNo, requestNo));
     }
@@ -336,6 +353,21 @@ public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> i
         ConsumerDTO dto = new ConsumerDTO();
         BeanUtils.copyProperties(entity, dto);
         return dto;
+    }
+
+    /**
+     * dto转为entity
+     *
+     * @param consumerDetailsDTO
+     * @return
+     **/
+    private ConsumerDetails convertConsumerDetailsDTOToEntity(ConsumerDetailsDTO consumerDetailsDTO) {
+        if (consumerDetailsDTO == null) {
+            return null;
+        }
+        ConsumerDetails consumerDetails = new ConsumerDetails();
+        BeanUtils.copyProperties(consumerDetailsDTO, consumerDetails);
+        return consumerDetails;
     }
 
 }

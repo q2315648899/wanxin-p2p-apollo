@@ -96,4 +96,12 @@ public interface ConsumerAPI {
      */
     RestResponse<String> applyUploadCertificate();
 
+    /**
+     * 保存用户详细信息(主要存储身份证文件标识)
+     * @param consumerDetailsDTO 封装用户详情信息
+     * @return
+     */
+    RestResponse<String> saveConsumerDetails(ConsumerDetailsDTO consumerDetailsDTO);
+
+
 }

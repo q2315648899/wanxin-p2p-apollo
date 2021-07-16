@@ -1,9 +1,6 @@
 package cn.itcast.wanxinp2p.consumer.service;
 
-import cn.itcast.wanxinp2p.api.consumer.model.BorrowerDTO;
-import cn.itcast.wanxinp2p.api.consumer.model.ConsumerDTO;
-import cn.itcast.wanxinp2p.api.consumer.model.ConsumerRegisterDTO;
-import cn.itcast.wanxinp2p.api.consumer.model.ConsumerRequest;
+import cn.itcast.wanxinp2p.api.consumer.model.*;
 import cn.itcast.wanxinp2p.api.depository.model.DepositoryConsumerResponse;
 import cn.itcast.wanxinp2p.api.depository.model.DepositoryRechargeResponse;
 import cn.itcast.wanxinp2p.api.depository.model.DepositoryWithdrawResponse;
@@ -96,5 +93,12 @@ public interface ConsumerService extends IService<Consumer> {
      * @return Map集合 识别成功后把身份证上的姓名和身份证号存到map中返回
      */
     RestResponse<Map<String, String>> imageRecognition(MultipartFile file, String flag) throws IOException;
+
+    /**
+     * 保存用户详细信息，主要存储身份证文件标识
+     * @param consumerDetailsDTO 用户详细信息
+     * @return
+     */
+    RestResponse<String> saveConsumerDetails(ConsumerDetailsDTO consumerDetailsDTO);
 
 }
