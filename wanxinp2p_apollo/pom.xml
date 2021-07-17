@@ -191,7 +191,7 @@
                 <version>3.14.1</version>
             </dependency>
 
-
+            <!--使用Sentinel集成Zuul，并采用apollo作为限流规则数据源-->
             <dependency>
                 <groupId>com.alibaba.csp</groupId>
                 <artifactId>sentinel-zuul-adapter</artifactId>
